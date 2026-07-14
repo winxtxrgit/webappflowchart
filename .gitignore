@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+._*
+
+# Anthropic skills repo (clone ของ github.com/anthropics/skills — ไม่ใช่ไฟล์โปรเจกต์)
+skill/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Claude Code local settings
+.claude/

@@ -1,213 +1,142 @@
-# Who Does What, and In What Order
+# Web App Flowchart — โปรเจกต์เว็บสร้างภาพด้วย AI
 
-**A simple map of the project. No technical detail — just the order of actions.**
+**ทีม 4 คน · คอมพิวเตอร์ 4 เครื่อง · วิชา 310-3311 Image Processing (CDTI, CPE)**
 
-The 5 positions (from `2.png`):
-
-| | Position | In plain words |
-|---|---|---|
-| 👤 **1** | **UX/UI Frontend** | Builds the screens the user sees |
-| 👤 **2** | **Flask Backend** | Builds the brain — logins, data, and the rules |
-| 👤 **3** | **AI Engineer** | Builds the image maker |
-| 👤 **4** | **QA / DevOps** | Tests everything, then installs it and keeps it alive |
-| 👤 **5** | **Reverse Proxy / Routing** *(optional)* | Connects the computers and builds the front door |
+เอกสารวางแผนงานสำหรับโปรเจกต์เว็บแอปพลิเคชันสร้างภาพด้วย AI แบบกระจายบนหลายเครื่อง (Distributed System)
+ทุกอย่างในนี้อ้างอิงจากภาพต้นฉบับ 3 ภาพใน [`Work/`](Work/) — `1.png` (ระบบ) · `2.png` (ตำแหน่งงาน) · `3.png` (เครื่องคอมพิวเตอร์)
 
 ---
 
-## 1. The order of work — the whole project on one page
+## 📌 เริ่มอ่านตรงนี้
+
+| ไฟล์ | ภาษา | อ่านเมื่อไหร่ |
+|---|---|---|
+| **[`Work/WORK_ORDER_FLOWCHART.md`](Work/WORK_ORDER_FLOWCHART.md)** | 🇹🇭 ไทย | **อยากรู้ว่าใครทำอะไรก่อนหลัง** — แผนผังลำดับงานทั้งโปรเจกต์ |
+| **[`Work/TEAM_ROLES_TH.md`](Work/TEAM_ROLES_TH.md)** | 🇹🇭 ไทย | **อยากรู้ว่าตำแหน่งของฉันต้องทำอะไรบ้าง** — รายการงานของแต่ละคน + สิ่งที่ห้ามทำ |
+| [`Work/positions_preview.html`](Work/positions_preview.html) | 🇹🇭 ไทย | เปิดในเบราว์เซอร์ ดูแบบมีรูป |
+
+---
+
+## ระบบที่กำลังจะสร้าง
 
 ```mermaid
 flowchart TD
-    START([🚀 Project starts])
+    U(["🌐 ผู้ใช้ (Browser)"])
 
-    START --> S1["<b>STEP 1 · Everyone together</b><br/>Agree what we are building"]
+    subgraph M1["MAC-01 — 192.168.1.10"]
+        NG["🚪 Nginx<br/>ประตูหน้า"]
+        FE["🖥️ Frontend<br/>HTML / CSS / JS"]
+    end
 
-    S1 --> S2["<b>STEP 2 · Everyone together</b><br/>🔶 <b>Agree the rules of the game</b><br/>• what the screens will ask the brain for<br/>• what the brain will store<br/>• what address each computer has<br/><br/><i>Nobody can start until this is agreed.</i>"]
+    subgraph M2["MAC-02 — 192.168.1.20"]
+        BE["🧠 Backend (Flask)<br/>สมองของระบบ"]
+        DB[("💾 Database<br/>SQLite")]
+    end
 
-    S2 --> P5A["<b>STEP 3</b> 👤5<br/>Connect the computers<br/>Give each one an address<br/>Make sure they can talk<br/>Build the front door"]
-    S2 --> P1A["<b>STEP 3</b> 👤1<br/>Draw the screens<br/>(pictures only, no code)"]
+    subgraph W1["WINDOWS-PC-01 — 192.168.1.30"]
+        AI["🎨 AI Server<br/>Forge AI · ต้องมีการ์ดจอ"]
+    end
 
-    P1A --> P1B["<b>STEP 4</b> 👤1<br/>Build the screens<br/><i>using fake data,<br/>so no waiting</i>"]
-    S2 --> P2A["<b>STEP 4</b> 👤2<br/>Build the brain<br/>login · data · rules"]
-    S2 --> P3A["<b>STEP 4</b> 👤3<br/>Build the image maker<br/>and the waiting line"]
-    S2 --> P4A["<b>STEP 4</b> 👤4<br/>Write the test checklist<br/><i>before anything exists</i>"]
+    U -->|"HTTP"| NG
+    NG --> FE
+    NG --> BE
+    BE --> AI
+    BE --> DB
 
-    P2A --> S5["<b>STEP 5</b> 👤2 + 👤3<br/>🔴 <b>Connect the brain to the image maker</b><br/><i>Do this EARLY. It is the hardest part.</i>"]
-    P3A --> S5
-
-    S5 --> S6["<b>STEP 6</b> 👤1 + 👤2<br/>Connect the screens to the brain<br/><i>throw away the fake data</i>"]
-    P1B --> S6
-
-    S6 --> S7["<b>STEP 7</b> 👤5<br/>Open the front door<br/><i>now it is ONE website</i>"]
-    P5A --> S7
-
-    S7 --> S8["<b>STEP 8</b> 👤4<br/>Test everything<br/><i>and turn each computer off<br/>to see what breaks</i>"]
-    P4A --> S8
-
-    S8 --> FIX{"Anything<br/>broken?"}
-    FIX -->|Yes| BACK["👤4 tells the person who owns it.<br/><i>They fix it — not 👤4.</i>"]
-    BACK --> S8
-
-    FIX -->|No| S9["<b>STEP 9</b> 👤4<br/>Install it on all the computers<br/>Make the health screen<br/>Set up backups<br/>Write the manual"]
-
-    S9 --> S10["<b>STEP 10 · Everyone together</b><br/>Look at it. Does it do what<br/>we said in Step 1?"]
-
-    S10 --> DONE([✅ Finished])
-
-    style S2 fill:#ffe0b2,stroke:#e65100,stroke-width:4px,color:#000
-    style S5 fill:#ffcdd2,stroke:#b71c1c,stroke-width:4px,color:#000
-    style START fill:#c8e6c9,color:#000
-    style DONE fill:#c8e6c9,color:#000
+    style AI fill:#ffe0b2,color:#000
 ```
 
-### The two moments that decide whether this project succeeds
-
-🔶 **Step 2 — agreeing the rules.**
-Until everyone agrees *exactly* what the screens will ask for and what the brain will send back, **nobody can work in parallel.** Once it's agreed, four people can build at the same time. This is the single most valuable hour of the project.
-
-🔴 **Step 5 — connecting the brain to the image maker.**
-This is the first time two *different computers* have to work together. It is the hardest part, and it always breaks the first time. **Do it early, even with something fake.** Teams that leave it until the end run out of time.
+**กฎข้อเดียวที่กำหนดทุกอย่าง:** หน้าเว็บ **ห้าม** คุยกับเครื่องสร้างภาพโดยตรง — ทุกคำขอต้องผ่านสมอง (Backend) เสมอ นั่นคือสิ่งที่ทำให้ตรวจล็อกอินได้ จดบันทึกได้ และจัดคิวได้
 
 ---
 
-## 2. The same thing, as a simple table
+## ทีม 4 คน
 
-| Step | Who | What they do | They wait for… |
+| | ตำแหน่ง | สร้างอะไร | เครื่อง |
 |---|---|---|---|
-| **1** | 🤝 Everyone | Agree what we're building | nobody |
-| **2** | 🤝 Everyone | 🔶 **Agree the rules of the game** | Step 1 |
-| **3** | 👤 **5** | Connect the computers · build the front door | Step 2 |
-| **3** | 👤 **1** | Draw the screens | Step 1 |
-| **4** | 👤 **1** | Build the screens *(with fake data)* | their own drawings |
-| **4** | 👤 **2** | Build the brain | Step 2 |
-| **4** | 👤 **3** | Build the image maker | Step 2 |
-| **4** | 👤 **4** | Write the test checklist | Step 2 |
-| **5** | 👤 **2** + 👤 **3** | 🔴 Connect the brain to the image maker | both must be ready |
-| **6** | 👤 **1** + 👤 **2** | Connect the screens to the brain | Step 5 |
-| **7** | 👤 **5** | Open the front door | Step 6 |
-| **8** | 👤 **4** | Test everything | Step 7 |
-| **9** | 👤 **4** | Install · monitor · back up · write the manual | Step 8 passes |
-| **10** | 🤝 Everyone | Final look | Step 9 |
+| 👤 **1** | **UX/UI Frontend** | หน้าเว็บที่ผู้ใช้เห็น · Bootstrap · JavaScript | `MAC-01` — `192.168.1.10` |
+| 👤 **2** | **Flask Backend** | สมอง — ล็อกอิน · API · ฐานข้อมูล · Logging | `MAC-02` — `192.168.1.20` |
+| 👤 **3** | **AI Engineer** | เครื่องสร้างภาพ — Forge AI · LoRA · คิว | `WINDOWS-PC-01` — `192.168.1.30` |
+| 👤 **4** | **QA / DevOps + Nginx** | เครือข่าย · ประตูหน้า · ทดสอบ · ติดตั้ง · backup · คู่มือ | `WINDOWS-PC-02` + ดูแลทุกเครื่อง |
+
+> `2.png` มีตำแหน่งที่ 5 (**Reverse Proxy, Routing**) แต่กำกับไว้ว่า **“ถ้ามี”** — ทีมนี้มี 4 คน งานนั้นจึงย้ายไปอยู่กับ **คนที่ 4**
 
 ---
 
-## 3. Who can work at the same time?
+## ลำดับการทำงาน
 
 ```mermaid
 flowchart LR
-    A["<b>Steps 1–2</b><br/>🤝 Everyone<br/><i>one at a time</i><br/><br/>Agree what we build<br/>Agree the rules"]
-
+    A["<b>ขั้น 1–2</b><br/>🤝 ทุกคนพร้อมกัน<br/><br/>ตกลงว่าจะสร้างอะไร<br/>🔶 ตกลง 'เมนู' (API)"]
     A ==> B
-
-    subgraph B["<b>Steps 3–4 · EVERYONE WORKS AT ONCE</b>"]
+    subgraph B["<b>ขั้น 3–4 · แยกกันทำพร้อมกัน</b>"]
         direction TB
-        B1["👤1 · draws + builds the screens"]
-        B2["👤2 · builds the brain"]
-        B3["👤3 · builds the image maker"]
-        B4["👤4 · writes the tests"]
-        B5["👤5 · connects the computers"]
+        B1["👤1 หน้าเว็บ"]
+        B2["👤2 สมอง"]
+        B3["👤3 เครื่องสร้างภาพ"]
+        B4["👤4 เครือข่าย + ทดสอบ"]
     end
+    B ==> C["<b>ขั้น 5–7</b><br/>🔗 ต่อชิ้นส่วนเข้าด้วยกัน<br/>เรียงลำดับ ทำทีละอย่าง"]
+    C ==> D["<b>ขั้น 8–10</b><br/>👤4 นำ<br/>ทดสอบ · ติดตั้ง · ตรวจงาน"]
 
-    B ==> C["<b>Steps 5–7</b><br/>🔗 Join the pieces together<br/><i>strict order — one at a time</i><br/><br/>brain ↔ image maker<br/>screens ↔ brain<br/>front door opens"]
-
-    C ==> D["<b>Steps 8–10</b><br/>👤4 leads<br/><br/>Test · install · back up<br/>then everyone reviews"]
-
-    style B fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000
     style A fill:#ffe0b2,color:#000
+    style B fill:#c8e6c9,color:#000
     style C fill:#ffcdd2,color:#000
 ```
 
-**The shape to remember:**
-**Narrow → wide → narrow.**
-Everyone together at the start, everyone apart in the middle, everyone together again at the end.
+**แคบ → กว้าง → แคบ** · เริ่มพร้อมกัน → แยกกันทำ → กลับมารวมกัน
+
+### 🔴 2 จุดที่ตัดสินว่าโปรเจกต์จะรอดไหม
+
+1. **ขั้นที่ 2 — ตกลง “เมนู” (API)** ถ้ายังไม่ตกลง ไม่มีใครแยกไปทำพร้อมกันได้เลย ทุกคนจะนั่งรอกัน
+2. **ขั้นที่ 5 — ต่อสมองเข้ากับเครื่องสร้างภาพ** ครั้งแรกที่คอมคนละเครื่องต้องคุยกัน **ยากที่สุด และพังทุกครั้งในรอบแรก — ทำแต่เนิ่นๆ**
 
 ---
 
-## 4. How the program actually works when someone uses it
+## ⚠️ เรื่องที่ต้องเช็คก่อนเริ่ม
 
-*This is what all the work above is building.*
+| # | เรื่อง | ใครเช็ค | เมื่อไหร่ |
+|---|---|---|---|
+| 1 | 🔴 **เครื่อง Windows มีการ์ดจอ NVIDIA จริงไหม** — Forge AI ต้องใช้ CUDA ซึ่ง Mac ใช้แทนไม่ได้ **ไม่มีภาพไหนบอกสเปกเครื่อง** ถ้าไม่มีการ์ดจอ แผนทั้งหมดต้องเปลี่ยน | คนที่ 3 | **วันแรก** |
+| 2 | เครื่องที่ 4 ใช้ IP อะไร — `1.png` บอกแค่ `.10 / .20 / .30` | คนที่ 4 | ขั้น 2 |
+| 3 | ใช้ port อะไร — ไม่มีภาพไหนระบุ | คนที่ 4 | ขั้น 2 |
+| 4 | **API มี endpoint อะไรบ้าง** — ไม่มีภาพไหนบอก | คนที่ 2 | ขั้น 2 |
+| 5 | ใช้ SQLite หรือ PostgreSQL — `1.png` บอก SQLite แต่ `3.png` แบบ 4 เครื่องบอก PostgreSQL | คนที่ 2 | ขั้น 1 |
 
-```mermaid
-flowchart TD
-    U(["👤 A person opens the website"])
+---
 
-    U --> D1["🚪 <b>The front door</b><br/>built by 👤5<br/><i>the only way in</i>"]
+## โครงสร้างไฟล์ทั้งหมด
 
-    D1 --> SC["🖥️ <b>The screens</b><br/>built by 👤1<br/><i>the person sees the page</i>"]
-
-    SC --> ASK["✍️ The person types what<br/>picture they want<br/>and presses the button"]
-
-    ASK --> D1B["🚪 back through the front door"]
-
-    D1B --> BR["🧠 <b>The brain</b><br/>built by 👤2<br/><br/>• Who are you? (login)<br/>• Write down the request<br/>• Ask the image maker"]
-
-    BR --> AI["🎨 <b>The image maker</b><br/>built by 👤3<br/><br/>⏱️ takes a while<br/>only ONE picture at a time —<br/>the rest wait in line"]
-
-    AI --> BR2["🧠 <b>The brain</b> again<br/>saves the finished picture"]
-
-    BR2 --> SC2["🖥️ <b>The screens</b><br/>show the picture 🖼️"]
-
-    SC2 --> U2(["😀 The person sees their picture"])
-
-    NOTE["📌 <b>Important rule:</b><br/>The screens NEVER talk to the<br/>image maker directly.<br/>Everything goes through the brain.<br/><i>That is how the brain can check<br/>the login and keep a record.</i>"]
-
-    NOTE -.- BR
-
-    style AI fill:#ffe0b2,stroke:#e65100,color:#000
-    style NOTE fill:#e1f5fe,stroke:#01579b,color:#000
-    style U fill:#c8e6c9,color:#000
-    style U2 fill:#c8e6c9,color:#000
+```
+.
+├── Work/                          ← เอกสารวางแผนโปรเจกต์
+│   ├── 1.png  2.png  3.png            ภาพต้นฉบับ (source of truth)
+│   ├── WORK_ORDER_FLOWCHART.md    🇹🇭  ลำดับการทำงาน — เริ่มอ่านที่นี่
+│   ├── TEAM_ROLES_TH.md           🇹🇭  แต่ละตำแหน่งต้องทำอะไร
+│   ├── positions_preview.html     🇹🇭  เวอร์ชันดูในเบราว์เซอร์
+│   ├── PROJECT_WORKFLOW.md        🇬🇧  แผนงานละเอียด (เวอร์ชัน 5 คน)
+│   ├── COMPUTER_ROLE_ALLOCATION.md 🇬🇧 เครื่องไหนทำหน้าที่อะไร + เหตุผล
+│   ├── FLOWCHART.md               🇬🇧  แผนผัง 16 แบบ
+│   ├── MASTER_AGENT.md            🇬🇧  ตัวประสานงาน AI Agent
+│   └── AGENT_COLLABORATION_RULES.md 🇬🇧 กฎการทำงานร่วมกัน · Git workflow
+│
+├── agents/                        ← AI Agent แยกตามตำแหน่ง (เวอร์ชัน 5 คน)
+│   ├── 01_UX_UI_FRONTEND_AGENT.md
+│   ├── 02_FLASK_BACKEND_AGENT.md
+│   ├── 03_AI_ENGINEER_AGENT.md
+│   ├── 04_QA_DEVOPS_AGENT.md
+│   └── 05_REVERSE_PROXY_ROUTING_AGENT.md
+│
+├── Lecture/                       ← สไลด์เรียน 4 ไฟล์ (282 สไลด์)
+├── Lecture_Knowledge_Base.md      ← สรุปสไลด์เรียนทั้งหมด
+├── learn/                         ← ภาพแผนงานทีม 11 ภาพ
+└── Learn_Knowledge_Base.md        ← สรุปภาพแผนงานทีม
 ```
 
-### The one thing that shapes the whole design
-
-**The image maker is slow. Everything else is fast.**
-
-Making a picture takes far longer than loading a page. So the brain **cannot just sit and wait** — it says *"got it, I'm working on it"* straight away, and the screens show a loading bar until the picture is ready.
-
-That single fact is why there is a **waiting line** (👤3 builds it), why the screens need a **loading state** (👤1 builds it), and why the brain has to **remember the request** (👤2 builds it).
+> **หมายเหตุ:** ไฟล์ที่ทำเครื่องหมาย 🇬🇧 ยังเป็นเวอร์ชัน **5 คน** อยู่ (มีตำแหน่ง Reverse Proxy แยก) ส่วนไฟล์ 🇹🇭 อัปเดตเป็น **4 คน** แล้ว
+>
+> แผนผัง Mermaid จะแสดงเป็นรูปบน GitHub, VS Code (มี extension) และ Obsidian
 
 ---
 
-## 5. Who hands work to whom
-
-```mermaid
-flowchart LR
-    P5["👤5<br/><b>Reverse Proxy</b><br/>connects the computers"]
-    P1["👤1<br/><b>Frontend</b><br/>the screens"]
-    P2["👤2<br/><b>Backend</b><br/>the brain"]
-    P3["👤3<br/><b>AI Engineer</b><br/>the image maker"]
-    P4["👤4<br/><b>QA / DevOps</b><br/>tests + installs"]
-
-    P5 -->|"the computers can<br/>now talk to each other"| P2
-    P5 -->|"the front door<br/>is ready"| P1
-    P3 -->|"the image maker<br/>works — here's how<br/>to call it"| P2
-    P2 -->|"the brain works —<br/>here's what to ask it for"| P1
-    P1 --> P4
-    P2 --> P4
-    P3 --> P4
-    P4 -->|"found a problem —<br/>YOU fix it, not me"| P1
-    P4 -->|"found a problem"| P2
-    P4 -->|"found a problem"| P3
-
-    style P2 fill:#ffe0b2,stroke:#e65100,stroke-width:3px,color:#000
-    style P4 fill:#e1f5fe,stroke:#01579b,color:#000
-```
-
-**Notice 👤2 (the brain) is in the middle of everything.** Everyone connects through them. That makes them the busiest person — and it means **if 👤2 falls behind, everybody falls behind.** Give them help first.
-
-**And notice 👤4 never fixes anything.** They find problems and tell the owner. If QA starts fixing other people's work, nobody knows who owns what any more.
-
----
-
-## 6. The short version
-
-> 1. **Talk first.** Agree what you're building, and agree exactly how the pieces will talk to each other. *(Steps 1–2)*
-> 2. **Then split up and build at the same time** — screens, brain, image maker, tests, network. Use fake data so nobody waits for anybody. *(Steps 3–4)*
-> 3. **Join the pieces early**, starting with the hardest one: brain ↔ image maker. *(Steps 5–7)*
-> 4. **Test it, install it, back it up, write it down.** *(Steps 8–9)*
-> 5. **Look at what you built** and check it's what you said in Step 1. *(Step 10)*
-
----
-
-*The 5 positions come from `2.png`. How the program works comes from `1.png`. The computers come from `3.png`.*
+*ข้อมูลทั้งหมดอ้างอิงจากภาพ `1.png` `2.png` `3.png` · อะไรที่ไม่ได้อยู่ในภาพ ถือเป็นข้อเสนอแนะ ไม่ใช่ข้อบังคับ*
