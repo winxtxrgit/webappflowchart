@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>แต่ละตำแหน่งต้องทำอะไรบ้าง</title>
+
+<style>
+  /* ============ TOKENS ============ */
+  :root {
+    color-scheme: light dark;
+
+    --paper:      #FFFFFF;
+    --wash:       #EDEFF7;
+    --wash-2:     #F6F7FB;
+    --rule:       #CDD2E4;
+    --rule-soft:  #E3E6F1;
+    --ink:        #141721;
+    --ink-2:      #565D77;
+    --ink-3:      #8990A8;
+
+    --blue:       #3D57AC;
+    --blue-deep:  #22306B;
+
+    --p1: #6B5CC4;
+    --p2: #3D57AC;
+    --p3: #B4691B;
+    --p4: #4E6273;
+    --p5: #0B7A47;
+
+    --stop:       #A82430;
+    --stop-wash:  #FBEDEE;
+
+    --shadow: 0 1px 2px rgba(20,23,33,.05), 0 8px 24px -12px rgba(34,48,107,.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#12141C; --wash:#1A1E2C; --wash-2:#171A26; --rule:#2E3448; --rule-soft:#232838;
+      --ink:#E6E9F4; --ink-2:#9AA2BC; --ink-3:#6C7492;
+      --blue:#8B9FE8; --blue-deep:#B9C6F5;
+      --p1:#A394F0; --p2:#8B9FE8; --p3:#E0A057; --p4:#93A8BC; --p5:#46C489;
+      --stop:#E4757F; --stop-wash:#2A1B20;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:#12141C; --wash:#1A1E2C; --wash-2:#171A26; --rule:#2E3448; --rule-soft:#232838;
+    --ink:#E6E9F4; --ink-2:#9AA2BC; --ink-3:#6C7492;
+    --blue:#8B9FE8; --blue-deep:#B9C6F5;
+    --p1:#A394F0; --p2:#8B9FE8; --p3:#E0A057; --p4:#93A8BC; --p5:#46C489;
+    --stop:#E4757F; --stop-wash:#2A1B20;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+  :root[data-theme="light"] {
+    --paper:#FFFFFF; --wash:#EDEFF7; --wash-2:#F6F7FB; --rule:#CDD2E4; --rule-soft:#E3E6F1;
+    --ink:#141721; --ink-2:#565D77; --ink-3:#8990A8;
+    --blue:#3D57AC; --blue-deep:#22306B;
+    --p1:#6B5CC4; --p2:#3D57AC; --p3:#B4691B; --p4:#4E6273; --p5:#0B7A47;
+    --stop:#A82430; --stop-wash:#FBEDEE;
+    --shadow: 0 1px 2px rgba(20,23,33,.05), 0 8px 24px -12px rgba(34,48,107,.18);
+  }
+
+  /* ============ BASE ============ */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--wash-2);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Sukhumvit Set", "Noto Sans Thai", "Thonburi", system-ui, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.78;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .display {
+    font-family: "Avenir Next", "Avenir", "Sukhumvit Set", "Noto Sans Thai", "Thonburi", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .mono {
+    font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .eyebrow {
+    font-family: "Avenir Next", "Avenir", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    color: var(--ink-3);
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* ============ MASTHEAD ============ */
+  .masthead { padding: 64px 0 36px; border-bottom: 2px solid var(--ink); }
+  .masthead h1 {
+    font-family: "Avenir Next", "Avenir", "Sukhumvit Set", "Noto Sans Thai", "Thonburi", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(32px, 5vw, 50px);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin: 12px 0 18px;
+    text-wrap: balance;
+  }
+  .masthead p { font-size: 18px; color: var(--ink-2); max-width: 62ch; margin: 0; }
+  .src { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .src span {
+    font-size: 12.5px;
+    padding: 5px 11px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    color: var(--ink-2);
+    background: var(--paper);
+  }
+
+  /* ============ MACHINE STRIP ============ */
+  .machines {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-top: none;
+    overflow: hidden;
+  }
+  .machine { background: var(--paper); padding: 20px 18px; display: flex; flex-direction: column; gap: 2px; }
+  .machine .who {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600; font-size: 15.5px;
+  }
+  .machine .ip {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums;
+  }
+  .machine .box { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+  .machine .tick { width: 26px; height: 3px; margin-bottom: 8px; }
+
+  /* ============ SECTION HEAD ============ */
+  .sechead { margin: 72px 0 24px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .sechead h2 {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600; font-size: 27px; letter-spacing: -0.01em; margin: 0;
+  }
+  .sechead .note { font-size: 14.5px; color: var(--ink-3); }
+
+  /* ============ POSITION CARD ============ */
+  .pos {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-left: 5px solid var(--c);
+    border-radius: 4px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .pos-head {
+    display: grid; grid-template-columns: 68px 1fr auto; gap: 18px; align-items: center;
+    padding: 22px 26px; border-bottom: 1px solid var(--rule-soft); background: var(--wash-2);
+  }
+  .pos-num {
+    font-family: "Avenir Next", "Avenir", system-ui, sans-serif;
+    font-weight: 600; font-size: 42px; line-height: 1; color: var(--c);
+    font-variant-numeric: tabular-nums;
+  }
+  .pos-title h3 {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600; font-size: 22px; letter-spacing: -0.008em; margin: 0 0 2px; line-height: 1.4;
+  }
+  .pos-title .sub { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; }
+  .pos-title .sub b { color: var(--c); font-weight: 600; }
+  .pos-machine {
+    text-align: right;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12px; color: var(--ink-2); line-height: 1.8;
+    font-variant-numeric: tabular-nums;
+  }
+  .pos-machine .mname { color: var(--ink); font-weight: 600; }
+
+  .pos-body { padding: 26px 26px 8px; }
+
+  .flow { list-style: none; margin: 0 0 8px; padding: 0; }
+  .flow li {
+    position: relative; padding: 0 0 20px 46px;
+    border-left: 2px solid var(--rule-soft); margin-left: 15px;
+  }
+  .flow li:last-child { border-left-color: transparent; padding-bottom: 6px; }
+  .flow li::before {
+    content: attr(data-n);
+    position: absolute; left: -15px; top: 2px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper); border: 2px solid var(--c); color: var(--c);
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .flow .t {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600; font-size: 16.5px; display: block; margin-bottom: 2px; line-height: 1.5;
+  }
+  .flow .d { font-size: 15px; color: var(--ink-2); max-width: 64ch; }
+  .flow .d code {
+    font-family: "SF Mono", Menlo, monospace; font-size: 12.5px;
+    background: var(--wash); padding: 1px 5px; border-radius: 3px; color: var(--ink);
+  }
+
+  /* phase divider */
+  .flow li.phase { border-left: none; padding: 24px 0 12px 46px; margin-left: 15px; }
+  .flow li.phase:first-child { padding-top: 0; }
+  .flow li.phase::before { content: ""; width: 0; height: 0; border: none; }
+  .flow li.phase .ph {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--c);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .flow li.phase .ph::after { content: ""; flex: 1; height: 1px; background: var(--rule-soft); }
+  .flow li.phase .phd { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
+
+  .flow li.key::before { background: var(--c); }
+  @media (prefers-color-scheme: dark) { .flow li.key::before { color: #12141C; } }
+  :root[data-theme="dark"] .flow li.key::before { color: #12141C; }
+  :root[data-theme="light"] .flow li.key::before { color: #FFFFFF; }
+
+  .flow li.key .t::after {
+    content: "ทุกคนรอสิ่งนี้";
+    display: inline-block; margin-left: 9px;
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 11.5px; font-weight: 600;
+    color: var(--c); border: 1px solid var(--c); border-radius: 2px;
+    padding: 1px 8px; vertical-align: 2px; line-height: 1.6;
+  }
+
+  .pos-foot {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--rule-soft); border-top: 1px solid var(--rule-soft); margin-top: 10px;
+  }
+  .pos-foot > div { background: var(--paper); padding: 18px 26px 20px; }
+  .pos-foot h4 {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: .04em;
+    margin: 0 0 9px; color: var(--ink-3);
+  }
+  .pos-foot ul { margin: 0; padding-left: 18px; }
+  .pos-foot li { font-size: 14.5px; color: var(--ink-2); margin-bottom: 5px; }
+  .stop h4 { color: var(--stop); }
+  .stop li::marker { color: var(--stop); }
+  .handoff strong { color: var(--ink); font-weight: 600; }
+
+  /* ============ RUNTIME ============ */
+  .runtime {
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 30px 26px; box-shadow: var(--shadow);
+  }
+  .rt-steps { list-style: none; margin: 0; padding: 0; }
+  .rt-steps li {
+    display: grid; grid-template-columns: 34px 1fr; gap: 16px; align-items: start;
+    padding: 15px 0; border-bottom: 1px dashed var(--rule-soft);
+  }
+  .rt-steps li:last-child { border-bottom: none; }
+  .rt-dot {
+    width: 34px; height: 34px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Avenir Next", system-ui, sans-serif;
+    font-weight: 600; font-size: 13px; color: #fff;
+  }
+  @media (prefers-color-scheme: dark) { .rt-dot { color: #12141C; } }
+  :root[data-theme="dark"] .rt-dot { color: #12141C; }
+  :root[data-theme="light"] .rt-dot { color: #fff; }
+  .rt-txt strong {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600; display: block; font-size: 16px; margin-bottom: 1px; line-height: 1.5;
+  }
+  .rt-txt span { font-size: 15px; color: var(--ink-2); }
+
+  /* ============ CALLOUT ============ */
+  .callout {
+    border: 1px solid var(--rule); border-left: 5px solid var(--blue);
+    background: var(--wash); border-radius: 4px; padding: 22px 24px; margin: 26px 0 0;
+  }
+  .callout.warn { border-left-color: var(--stop); background: var(--stop-wash); }
+  .callout h4 {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 16px; font-weight: 600; margin: 0 0 6px; line-height: 1.5;
+  }
+  .callout p { margin: 0; font-size: 15.5px; color: var(--ink-2); max-width: 70ch; }
+  .callout.warn h4 { color: var(--stop); }
+
+  /* ============ ORDER TABLE ============ */
+  .order {
+    overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--paper); box-shadow: var(--shadow);
+  }
+  table.ord { width: 100%; border-collapse: collapse; min-width: 720px; }
+  table.ord th, table.ord td {
+    padding: 12px 15px; text-align: left;
+    border-bottom: 1px solid var(--rule-soft); font-size: 14.5px;
+  }
+  table.ord th {
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: .03em;
+    color: var(--ink-3); background: var(--wash-2); border-bottom: 1px solid var(--rule);
+  }
+  table.ord td:first-child {
+    font-family: "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums; color: var(--ink-3); width: 62px;
+  }
+  table.ord tr:last-child td { border-bottom: none; }
+  .chip {
+    display: inline-block;
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 3px;
+    border: 1px solid currentColor; margin-right: 5px; white-space: nowrap; line-height: 1.7;
+  }
+  .c1 { color: var(--p1); } .c2 { color: var(--p2); } .c3 { color: var(--p3); }
+  .c4 { color: var(--p4); }
+  .call { color: var(--ink-2); }
+  .par {
+    font-size: 13px; color: var(--p5);
+    font-family: "Avenir Next", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif;
+    font-weight: 600;
+  }
+
+  footer.foot {
+    margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--rule);
+    font-size: 13.5px; color: var(--ink-3); line-height: 1.8;
+  }
+
+  @media (max-width: 720px) {
+    .pos-head { grid-template-columns: 52px 1fr; }
+    .pos-machine { grid-column: 1 / -1; text-align: left; }
+    .pos-foot { grid-template-columns: 1fr; }
+    .masthead { padding-top: 44px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">คู่มือทีม · 4 คน · 4 เครื่อง</div>
+    <h1 class="display">แต่ละตำแหน่งต้องสร้างอะไรบ้าง</h1>
+    <p>เว็บสร้างภาพด้วย AI หนึ่งเว็บ แบ่งกันทำบนคอมพิวเตอร์ 4 เครื่อง แต่ละคนดูแลคนละส่วน หน้านี้คือรายการงานที่แต่ละคนต้องสร้าง เรียงตามลำดับ — และสิ่งที่ห้ามไปแตะของคนอื่น</p>
+    <div class="src">
+      <span>ที่มา: 1.png — ระบบ</span>
+      <span>ที่มา: 2.png — ตำแหน่งงาน</span>
+      <span>ที่มา: 3.png — เครื่องคอมพิวเตอร์</span>
+      <span>ทีม 4 คน — คนที่ 5 รวมเข้ากับคนที่ 4</span>
+    </div>
+  </header>
+
+  <!-- MACHINES -->
+  <div class="machines">
+    <div class="machine">
+      <div class="tick" style="background:var(--p1)"></div>
+      <div class="who">ประตูหน้า + หน้าเว็บ</div>
+      <div class="ip">192.168.1.10</div>
+      <div class="box">Frontend — คนที่ 1 · Nginx — คนที่ 4</div>
+    </div>
+    <div class="machine">
+      <div class="tick" style="background:var(--p2)"></div>
+      <div class="who">สมอง + ฐานข้อมูล</div>
+      <div class="ip">192.168.1.20</div>
+      <div class="box">Flask · Database — คนที่ 2</div>
+    </div>
+    <div class="machine">
+      <div class="tick" style="background:var(--p3)"></div>
+      <div class="who">เครื่องสร้างภาพ</div>
+      <div class="ip">192.168.1.30</div>
+      <div class="box">Forge AI · ต้องใช้การ์ดจอ — คนที่ 3</div>
+    </div>
+    <div class="machine">
+      <div class="tick" style="background:var(--p4)"></div>
+      <div class="who">เครือข่าย ทดสอบ และดูแลระบบ</div>
+      <div class="ip">ทุกเครื่อง</div>
+      <div class="box">QA / DevOps + Nginx — คนที่ 4</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <h4>ทีมมี 4 คน จึงไม่มีคนที่ 5</h4>
+    <p>ตารางแบ่งหน้าที่มีตำแหน่งที่ 5 คือ <b>Reverse Proxy, Routing</b> แต่กำกับไว้ว่า <b>“ถ้ามี”</b> — เมื่อทีมมี 4 คน ตำแหน่งนี้จึงไม่มี และงานทั้งหมดย้ายไปอยู่กับ <b>คนที่ 4</b> ซึ่งกลายเป็น <b>QA / DevOps + Nginx</b> ตำแหน่งนี้เหมาะที่สุด เพราะการวางเครือข่ายและติดตั้งประตูหน้าเป็นงาน Infrastructure และคนที่ 4 เป็นคนติดตั้งและดูแลระบบอยู่แล้ว</p>
+  </div>
+
+  <div class="sechead">
+    <h2 class="display">ตำแหน่งงานทั้ง 4</h2>
+    <span class="note">ตัวเลขในแต่ละรายการ คือลำดับที่คนนั้นต้องทำงานของตัวเอง</span>
+  </div>
+
+  <!-- ============ คนที่ 1 ============ -->
+  <article class="pos" style="--c: var(--p1)">
+    <div class="pos-head">
+      <div class="pos-num">1</div>
+      <div class="pos-title">
+        <h3 class="display">UX/UI Frontend</h3>
+        <div class="sub">คนที่ 1 — สร้าง <b>หน้าเว็บที่ผู้ใช้มองเห็นและกดใช้งาน</b></div>
+      </div>
+      <div class="pos-machine">
+        <div class="mname">MAC-01</div>
+        <div>192.168.1.10</div>
+      </div>
+    </div>
+
+    <div class="pos-body">
+      <ol class="flow">
+        <li data-n="01"><span class="t">ร่างหน้าจอให้ครบทุกหน้า</span><span class="d">ร่างทุกหน้าลงกระดาษหรือ Figma ก่อนเขียนโค้ดสักบรรทัด แก้ภาพร่างถูกกว่าแก้เว็บที่สร้างเสร็จแล้วมาก</span></li>
+        <li data-n="02"><span class="t">กำหนดหน้าตาให้เหมือนกันทั้งเว็บ</span><span class="d">เลือกสี ฟอนต์ และรูปแบบปุ่มไว้ครั้งเดียว แล้วใช้ซ้ำทุกหน้า อันนี้เรียกว่า Design System</span></li>
+        <li data-n="03"><span class="t">สร้างหน้าเว็บ</span><span class="d">เขียน HTML กับ CSS โดยใช้ <code>Bootstrap</code> ช่วยจัดหน้า — หน้าล็อกอิน หน้าแกลเลอรี หน้าสร้างภาพ</span></li>
+        <li data-n="04"><span class="t">ทำให้ใช้ได้ทุกขนาดจอ</span><span class="d">ต้องใช้งานได้ทั้งบนมือถือและบนโน้ตบุ๊ก</span></li>
+        <li data-n="05"><span class="t">คุยกับสมอง</span><span class="d">เขียน <code>JavaScript</code> ส่งคำสั่งของผู้ใช้ไปหาคนที่ 2 แล้วอ่านคำตอบกลับมา <b>ให้สร้างโดยใช้ข้อมูลปลอมไปก่อน</b> จะได้ไม่ต้องนั่งรอคนที่ 2 ทำเสร็จ</span></li>
+        <li data-n="06"><span class="t">แสดงแถบโหลด</span><span class="d">การสร้างภาพใช้เวลาหลายวินาทีถึงเป็นนาที ถ้าไม่มีแถบนี้ ผู้ใช้จะคิดว่าเว็บค้าง แล้วกดปุ่มซ้ำอีกรอบ</span></li>
+        <li data-n="07"><span class="t">แสดงภาพ และแสดงข้อผิดพลาดด้วย</span><span class="d">แสดงภาพที่สร้างเสร็จ และถ้ามีอะไรพลาด ให้บอกเป็นภาษาคน แทนที่จะเงียบไปเฉยๆ</span></li>
+      </ol>
+    </div>
+
+    <div class="pos-foot">
+      <div class="stop">
+        <h4>ห้ามทำ</h4>
+        <ul>
+          <li>ห้ามเรียกเครื่องสร้างภาพโดยตรง — ทุกอย่างต้องผ่านสมอง</li>
+          <li>ห้ามแตะฐานข้อมูล</li>
+          <li>ห้ามเขียนโค้ดฝั่งเซิร์ฟเวอร์</li>
+        </ul>
+      </div>
+      <div class="handoff">
+        <h4>ทำงานร่วมกับใคร</h4>
+        <ul>
+          <li>บอก <strong>คนที่ 2</strong> ให้ชัดว่าหน้าเว็บต้องขออะไรบ้าง</li>
+          <li>ส่งหน้าเว็บที่เสร็จแล้วให้ <strong>คนที่ 4</strong> เอาไปเสิร์ฟผ่านประตูหน้า</li>
+          <li>แก้สิ่งที่ <strong>คนที่ 4</strong> ทดสอบแล้วเจอปัญหา</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============ คนที่ 2 ============ -->
+  <article class="pos" style="--c: var(--p2)">
+    <div class="pos-head">
+      <div class="pos-num">2</div>
+      <div class="pos-title">
+        <h3 class="display">Flask Backend</h3>
+        <div class="sub">คนที่ 2 — สร้าง <b>สมอง: ระบบล็อกอิน ข้อมูล และกฎการทำงาน</b></div>
+      </div>
+      <div class="pos-machine">
+        <div class="mname">MAC-02</div>
+        <div>192.168.1.20</div>
+      </div>
+    </div>
+
+    <div class="pos-body">
+      <ol class="flow">
+        <li data-n="01" class="key"><span class="t">เขียน “เมนู” (API)</span><span class="d">รายการว่าหน้าเว็บขออะไรได้บ้าง และจะได้อะไรกลับไป ให้ชัดเจน คนที่ 1 กับคนที่ 3 ต้องสร้างงานตามรายการนี้ — <b>ถ้ายังไม่มีและยังไม่ตกลงกัน คนอื่นเริ่มงานไม่ได้เลย</b></span></li>
+        <li data-n="02"><span class="t">สร้างระบบล็อกอิน</span><span class="d">สมัครสมาชิก เข้าสู่ระบบ ออกจากระบบ เก็บรหัสผ่านแบบเข้ารหัส ห้ามเก็บเป็นข้อความที่อ่านได้</span></li>
+        <li data-n="03"><span class="t">สร้างฐานข้อมูล</span><span class="d">ที่เก็บผู้ใช้ คำสั่งที่ขอเข้ามา และภาพที่สร้างเสร็จแล้ว</span></li>
+        <li data-n="04"><span class="t">บันทึกทุกอย่างที่เกิดขึ้น</span><span class="d">จดทุกคำขอและทุกความผิดพลาด เวลาระบบพังข้ามเครื่อง <b>log คือทางเดียวที่จะรู้ว่าเกิดอะไรขึ้นจริงๆ</b></span></li>
+        <li data-n="05"><span class="t">เรียกเครื่องสร้างภาพ</span><span class="d">ส่งคำสั่งของผู้ใช้ข้ามไปที่เครื่องของคนที่ 3 ที่ <code>192.168.1.30</code> แล้วรอรับภาพกลับมา</span></li>
+        <li data-n="06"><span class="t">ตอบกลับทันที ไม่ต้องรอ</span><span class="d">อย่าให้เบราว์เซอร์ของผู้ใช้นั่งรอเป็นนาที ให้ตอบไปก่อนว่า “รับเรื่องแล้ว กำลังทำอยู่” แล้วค่อยส่งภาพให้ทีหลังตอนเสร็จ</span></li>
+        <li data-n="07"><span class="t">บันทึกผลลัพธ์</span><span class="d">เก็บภาพที่เสร็จแล้ว ผูกกับคนที่ขอมา แล้วส่งกลับไปให้หน้าเว็บ</span></li>
+        <li data-n="08"><span class="t">พังอย่างสุภาพ</span><span class="d">ถ้าเครื่องสร้างภาพปิดอยู่ หรือคิวเต็ม ให้บอกไปตรงๆ อย่าค้างไปเฉยๆ</span></li>
+      </ol>
+    </div>
+
+    <div class="pos-foot">
+      <div class="stop">
+        <h4>ห้ามทำ</h4>
+        <ul>
+          <li>ห้ามออกแบบหน้าเว็บ — เป็นงานของคนที่ 1</li>
+          <li>ห้ามรัน AI บนเครื่องนี้ — ต้องอยู่บนเครื่องของคนที่ 3</li>
+          <li>ห้ามแก้เมนู (API) โดยไม่บอกคนที่ 1 กับคนที่ 3</li>
+        </ul>
+      </div>
+      <div class="handoff">
+        <h4>ทำงานร่วมกับใคร</h4>
+        <ul>
+          <li><strong>ทุกคน</strong> — ตำแหน่งนี้งานหนักที่สุด เพราะทุกส่วนต่อผ่านตรงนี้หมด</li>
+          <li>ส่งเมนู (API) ให้ <strong>คนที่ 1</strong> เอาไปสร้างงาน</li>
+          <li>ตกลงกับ <strong>คนที่ 3</strong> ว่าจะขอภาพยังไง</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============ คนที่ 3 ============ -->
+  <article class="pos" style="--c: var(--p3)">
+    <div class="pos-head">
+      <div class="pos-num">3</div>
+      <div class="pos-title">
+        <h3 class="display">AI Engineer</h3>
+        <div class="sub">คนที่ 3 — สร้าง <b>เครื่องสร้างภาพ</b></div>
+      </div>
+      <div class="pos-machine">
+        <div class="mname">WINDOWS-PC-01</div>
+        <div>192.168.1.30</div>
+      </div>
+    </div>
+
+    <div class="pos-body">
+      <ol class="flow">
+        <li data-n="00" class="key"><span class="t">เช็คการ์ดจอ — ทำวันแรกเลย</span><span class="d">ก่อนทำอะไรทั้งหมด ให้ยืนยันว่าเครื่องนี้มีการ์ดจอ <b>NVIDIA</b> จริง โปรแกรม AI รันไม่ได้ถ้าไม่มี และเครื่อง Mac ใช้แทนไม่ได้ <b>ถ้าไม่มีการ์ดจอ แผนทั้งหมดต้องเปลี่ยน — และควรรู้ตั้งแต่วันแรก ไม่ใช่สัปดาห์ที่สี่</b></span></li>
+        <li data-n="01"><span class="t">ติดตั้งโปรแกรม AI</span><span class="d">ติดตั้ง <code>Forge AI</code> พร้อมไดรเวอร์การ์ดจอที่มันต้องใช้</span></li>
+        <li data-n="02"><span class="t">โหลดโมเดล</span><span class="d">โมเดลหลัก และไฟล์ <code>LoRA</code> ที่ใช้เปลี่ยนสไตล์ภาพ ไฟล์พวกนี้ใหญ่มาก <b>เริ่มโหลดตั้งแต่วันแรก</b> แล้วไปทำอย่างอื่นระหว่างรอ</span></li>
+        <li data-n="03"><span class="t">สร้างภาพจากข้อความ</span><span class="d">ผู้ใช้พิมพ์ว่า “แมวนอนบนชายหาด” แล้วได้ภาพออกมา นี่คือฟีเจอร์หลักของทั้งเว็บ</span></li>
+        <li data-n="04"><span class="t">แก้ไขภาพที่มีอยู่แล้ว</span><span class="d">เอาภาพที่ผู้ใช้มีอยู่แล้วมาแก้ไข</span></li>
+        <li data-n="05"><span class="t">สร้างคิว</span><span class="d">การ์ดจอสร้างภาพได้ <b>ทีละ 1 ภาพเท่านั้น</b> ถ้ามีคำขอเข้ามาพร้อมกัน 2 อันแล้วไม่มีคิว เครื่องจะพัง — อันนี้ไม่ใช่ของเสริม แต่เป็นสิ่งที่ต้องมี</span></li>
+        <li data-n="06"><span class="t">เปิดช่องให้สมองเรียกเข้ามา</span><span class="d">เพื่อให้เครื่องของคนที่ 2 ส่งคำขอผ่านเครือข่ายเข้ามา แล้วรับภาพกลับไปได้</span></li>
+        <li data-n="07"><span class="t">ทดสอบ API ของตัวเอง</span><span class="d">พิสูจน์ว่าใช้งานได้จริง <b>ก่อน</b> ส่งต่อให้คนที่ 2 ลองยิงคำขอพร้อมกัน 2 อัน แล้วดูว่าคิวรับไหว หรือเครื่องพัง</span></li>
+        <li data-n="08"><span class="t">บอกเวลาที่ใช้จริง</span><span class="d">จับเวลาว่าสร้างภาพ 1 ภาพใช้กี่วินาที แล้วบอกทั้งทีม — <b>แถบโหลดของคนที่ 1, เวลารอของคนที่ 2 และ timeout ประตูหน้าของคนที่ 4 ตั้งค่าจากตัวเลขนี้ตัวเดียวกันหมด</b></span></li>
+      </ol>
+    </div>
+
+    <div class="pos-foot">
+      <div class="stop">
+        <h4>ห้ามทำ</h4>
+        <ul>
+          <li>ห้ามรับคำขอตรงจากเบราว์เซอร์ — มีแค่สมองเท่านั้นที่เรียกได้</li>
+          <li>ห้ามเขียนลงฐานข้อมูล — ส่งภาพกลับไป แล้วให้คนที่ 2 เป็นคนบันทึก</li>
+          <li>ห้ามเอาไฟล์โมเดลขนาดใหญ่ขึ้น Git</li>
+        </ul>
+      </div>
+      <div class="handoff">
+        <h4>ทำงานร่วมกับใคร</h4>
+        <ul>
+          <li><strong>คนที่ 2 เท่านั้น</strong> — มีคนเดียวที่เรียกเครื่องนี้ได้</li>
+          <li>บอกทั้งทีมว่า <strong>สร้างภาพใช้เวลาจริงเท่าไหร่</strong></li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============ คนที่ 4 ============ -->
+  <article class="pos" style="--c: var(--p4)">
+    <div class="pos-head">
+      <div class="pos-num">4</div>
+      <div class="pos-title">
+        <h3 class="display">QA / DevOps + Nginx</h3>
+        <div class="sub">คนที่ 4 — วาง <b>เครือข่ายและประตูหน้า</b> แล้ว <b>ทดสอบทุกอย่างและดูแลระบบให้ทำงานต่อได้</b></div>
+      </div>
+      <div class="pos-machine">
+        <div class="mname">WINDOWS-PC-02</div>
+        <div>+ Nginx บน MAC-01</div>
+        <div>ดูแลทั้ง 4 เครื่อง</div>
+      </div>
+    </div>
+
+    <div class="pos-body">
+      <ol class="flow">
+
+        <li class="phase"><span class="ph">ส่วน A · เครือข่าย — ทำก่อนเพื่อน</span><span class="phd">ถ้าส่วนนี้ยังไม่เสร็จ ไม่มีใครต่อระบบเข้าด้วยกันได้เลย และถ้าปล่อยไว้ทำทีหลัง จะเป็นปัญหาที่หาสาเหตุยากที่สุด</span></li>
+
+        <li data-n="01"><span class="t">ตั้ง IP ให้ทุกเครื่อง</span><span class="d"><code>.10</code> หน้าเว็บ · <code>.20</code> สมอง · <code>.30</code> เครื่องสร้างภาพ</span></li>
+        <li data-n="02" class="key"><span class="t">พิสูจน์ว่าทุกเครื่องคุยกันได้</span><span class="d">ping จากทุกเครื่องไปหาทุกเครื่อง <b>ถ้าข้อนี้ยังไม่ผ่าน ต่อระบบอะไรไม่ได้เลย</b> — คนที่ 2 จะเรียกคนที่ 3 ไม่ได้ และเว็บก็เกิดขึ้นไม่ได้</span></li>
+        <li data-n="03"><span class="t">ติดตั้งประตูหน้า</span><span class="d"><code>Nginx</code> — ที่อยู่เว็บเดียวสำหรับทั้งระบบ ผู้ใช้ไม่ต้องรู้เลยว่าข้างหลังมี 4 เครื่อง ติดตั้งไว้บนเครื่องของคนที่ 1</span></li>
+        <li data-n="04"><span class="t">ชี้ทางให้ไปถูกเครื่อง</span><span class="d">คำขอหน้าเว็บ → ไปที่คนที่ 1 · คำขอข้อมูล → ไปที่สมองของคนที่ 2</span></li>
+        <li data-n="05"><span class="t">ตั้งให้ประตูหน้ารอนานพอ</span><span class="d">ค่าเริ่มต้นคือรอ 60 วินาทีแล้วตัดทิ้ง ถ้าสร้างภาพนานกว่านั้น มันจะตัดการเชื่อมต่อ — แล้วจะดูเหมือน<b>โค้ดของคนที่ 2 มีบั๊ก ทั้งที่ความจริงคือประตูหน้า</b> ให้ถามคนที่ 3 ว่าใช้เวลาจริงเท่าไหร่ แล้วตั้งให้สูงกว่านั้น</span></li>
+        <li data-n="06"><span class="t">ซ่อนเครื่องสร้างภาพกับฐานข้อมูล</span><span class="d">คนภายนอกต้องเข้าถึงตรงๆ ไม่ได้ มีแค่สมองเท่านั้นที่เข้าได้</span></li>
+
+        <li class="phase"><span class="ph">ส่วน B · การทดสอบ</span><span class="phd">คุณเป็นคนเดียวที่เห็นระบบทั้งหมดพร้อมกัน สิ่งเหล่านี้ไม่มีใครทดสอบให้</span></li>
+
+        <li data-n="07"><span class="t">เขียนรายการทดสอบไว้ก่อน</span><span class="d">พอเมนู (API) ของคนที่ 2 ตกลงเสร็จ ให้เขียนไว้เลยว่า “ใช้งานได้” แปลว่าอะไร — <b>เขียนก่อนที่ใครจะเริ่มสร้าง</b></span></li>
+        <li data-n="08"><span class="t">ทดสอบทีละส่วน</span><span class="d">หน้าเว็บใช้ได้ไหม สมองตอบไหม เครื่องสร้างภาพสร้างภาพได้ไหม</span></li>
+        <li data-n="09"><span class="t">ทดสอบตอนต่อรวมกันแล้ว</span><span class="d">คนจริง กดปุ่มจริง ได้ภาพจริง วิ่งข้ามทุกเครื่อง</span></li>
+        <li data-n="10"><span class="t">ทดสอบตอนคนใช้เยอะ</span><span class="d">หลายคนขอภาพพร้อมกัน — ตรงนี้แหละที่ระบบจะพัง</span></li>
+        <li data-n="11"><span class="t">ลองปิดเครื่องทีละเครื่อง</span><span class="d">ปิดเครื่องสร้างภาพดู — เว็บขึ้นข้อความบอกชัดๆ หรือค้างไปเฉยๆ? ทำแบบนี้กับทุกเครื่อง แล้วจดไว้ว่าอะไรพังบ้าง</span></li>
+
+        <li class="phase"><span class="ph">ส่วน C · ติดตั้งและดูแลระบบ</span><span class="phd">เริ่มส่วนนี้ได้ต่อเมื่อการทดสอบผ่านหมดแล้วเท่านั้น</span></li>
+
+        <li data-n="12"><span class="t">ติดตั้งลงเครื่องให้ถูกตัว</span><span class="d">หน้าเว็บลง <code>.10</code> · สมองลง <code>.20</code> · เครื่องสร้างภาพลง <code>.30</code> เปิดฐานข้อมูลก่อน แล้วเปิดประตูหน้าเป็นอันสุดท้าย</span></li>
+        <li data-n="13"><span class="t">ทำหน้าจอเช็คสุขภาพระบบ</span><span class="d">หน้าเดียวที่บอกว่าแต่ละเครื่องยังทำงานอยู่หรือเปล่า จะได้รู้ก่อนผู้ใช้</span></li>
+        <li data-n="14"><span class="t">ตั้ง backup แล้วลอง restore จริง</span><span class="d">สำรองฐานข้อมูลกับรูปภาพไว้ที่ปลอดภัย แล้ว <b>ลองกู้คืนกลับมาจริงๆ ดูว่าใช้ได้ไหม</b> — backup ที่ไม่เคยลองกู้คืน ไม่นับว่าเป็น backup</span></li>
+        <li data-n="15"><span class="t">เขียนคู่มือ</span><span class="d">เล่มหนึ่งสำหรับผู้ใช้งาน อีกเล่มสำหรับคนที่ต้องดูแลระบบ</span></li>
+      </ol>
+    </div>
+
+    <div class="pos-foot">
+      <div class="stop">
+        <h4>ห้ามทำ</h4>
+        <ul>
+          <li><b>ห้ามไปแก้โค้ดของคนอื่น</b> — เจอปัญหาแล้วอธิบายให้ชัด แล้วส่งให้เจ้าของไปแก้เอง</li>
+          <li>ห้ามเปิดเครื่องสร้างภาพหรือฐานข้อมูลให้คนภายนอกเข้าถึง</li>
+          <li>ห้ามแก้หน้าเว็บของคนที่ 1 — คุณแค่เอาไปเสิร์ฟ ไม่ใช่คนเขียน</li>
+          <li>ห้ามติดตั้งเวอร์ชันที่ยังไม่ผ่านการทดสอบ</li>
+        </ul>
+      </div>
+      <div class="handoff">
+        <h4>ทำงานร่วมกับใคร</h4>
+        <ul>
+          <li><strong>ทุกคน</strong> — ถ้าเครือข่ายของคุณยังไม่เสร็จ ไม่มีใครต่อระบบได้เลย</li>
+          <li>เป็นคนให้ <strong>ไฟเขียว</strong> ว่าพร้อมเปิดใช้งานจริง</li>
+          <li>เป็นคนเดียวที่เห็นระบบทั้งหมดพร้อมกัน</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <div class="callout warn">
+    <h4>ระวังงานของคนที่ 4 ล้นมือ</h4>
+    <p>พอทีมมี 4 คน คนที่ 4 จะมีงานถึง <b>15 อย่าง</b> มากที่สุดในทีม และ <b>2 อย่างในนั้นเป็นคอขวดของทั้งโปรเจกต์</b> — เครือข่ายต้องเสร็จก่อนใครจะต่อระบบได้ และการทดสอบต้องผ่านก่อนถึงจะเปิดใช้งานได้ ดังนั้น <b>ให้คนที่ 4 เริ่มทำเครือข่ายตั้งแต่สัปดาห์แรก</b> อย่ารอไปทำตอนท้าย และช่วงท้ายควรให้อีก 3 คนมาช่วยทดสอบด้วย</p>
+  </div>
+
+  <!-- ============ ORDER ============ -->
+  <div class="sechead">
+    <h2 class="display">ใครทำงานตอนไหน</h2>
+    <span class="note">ดูช่วงกลางให้ดี — ตรงนั้นคือช่วงที่ทั้ง 4 คนทำงานพร้อมกัน</span>
+  </div>
+
+  <div class="order">
+    <table class="ord">
+      <thead>
+        <tr><th>ขั้น</th><th>เกิดอะไรขึ้น</th><th>ใครทำ</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>ตกลงกันว่าจะสร้างอะไร</td>
+          <td><span class="chip call">ทุกคนพร้อมกัน</span></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><b>ตกลง “เมนู”</b> — หน้าเว็บจะขออะไร และจะได้อะไรกลับ</td>
+          <td><span class="chip call">ทุกคนพร้อมกัน</span></td>
+        </tr>
+        <tr>
+          <td>3–4</td>
+          <td>ทุกคนสร้างส่วนของตัวเอง <span class="par">← ทำพร้อมกันได้</span></td>
+          <td>
+            <span class="chip c1">1 หน้าเว็บ</span>
+            <span class="chip c2">2 สมอง</span>
+            <span class="chip c3">3 เครื่องสร้างภาพ</span>
+            <span class="chip c4">4 เครือข่าย + ทดสอบ</span>
+          </td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>ต่อสมองเข้ากับเครื่องสร้างภาพ — <b>ขั้นที่ยากที่สุด ทำแต่เนิ่นๆ</b></td>
+          <td><span class="chip c2">2</span><span class="chip c3">3</span></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>ต่อหน้าเว็บเข้ากับสมอง — ทิ้งข้อมูลปลอมได้แล้ว</td>
+          <td><span class="chip c1">1</span><span class="chip c2">2</span></td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>เปิดประตูหน้า — ตอนนี้กลายเป็นเว็บเดียวแล้ว</td>
+          <td><span class="chip c4">4</span></td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>ทดสอบทุกอย่าง รวมถึงลองปิดเครื่องดู</td>
+          <td><span class="chip c4">4</span></td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>ติดตั้ง เฝ้าดู สำรองข้อมูล เขียนคู่มือ</td>
+          <td><span class="chip c4">4</span></td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>ดูสิ่งที่สร้างเสร็จ — ตรงกับที่ตกลงกันไว้ในขั้นที่ 1 ไหม</td>
+          <td><span class="chip call">ทุกคนพร้อมกัน</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ RUNTIME ============ -->
+  <div class="sechead">
+    <h2 class="display">เว็บที่เสร็จแล้วทำงานยังไง</h2>
+    <span class="note">คนหนึ่งคน กดปุ่มหนึ่งครั้ง ได้ภาพหนึ่งภาพ — และโค้ดของใครทำงานตอนไหน</span>
+  </div>
+
+  <div class="runtime">
+    <ol class="rt-steps">
+      <li>
+        <div class="rt-dot" style="background:var(--p4)">4</div>
+        <div class="rt-txt"><strong>ผู้ใช้เปิดเว็บ</strong><span>เข้ามาทางประตูหน้า ซึ่งเป็นทางเดียวที่เข้าได้ แล้วประตูก็ส่งหน้าเว็บให้</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p1)">1</div>
+        <div class="rt-txt"><strong>ผู้ใช้เห็นหน้าเว็บ</strong><span>พิมพ์ว่าอยากได้ภาพอะไร แล้วกดปุ่ม</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p2)">2</div>
+        <div class="rt-txt"><strong>สมองตรวจตัวตนและจดบันทึก</strong><span>คุณเป็นใคร ล็อกอินหรือยัง — โอเค เดี๋ยวจดคำขอนี้ไว้</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p2)">2</div>
+        <div class="rt-txt"><strong>สมองตอบทันทีว่า “กำลังทำอยู่”</strong><span>ไม่ปล่อยให้ผู้ใช้นั่งรอ หน้าเว็บเริ่มขึ้นแถบโหลด</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p3)">3</div>
+        <div class="rt-txt"><strong>เครื่องสร้างภาพเริ่มทำงาน</strong><span>เข้าคิว รอคิวการ์ดจอ แล้ววาดภาพ — ตรงนี้คือส่วนที่ช้าที่สุด</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p2)">2</div>
+        <div class="rt-txt"><strong>สมองบันทึกภาพที่เสร็จแล้ว</strong><span>เก็บภาพไว้ แล้วผูกกับคนที่ขอมา</span></div>
+      </li>
+      <li>
+        <div class="rt-dot" style="background:var(--p1)">1</div>
+        <div class="rt-txt"><strong>หน้าเว็บแสดงภาพ</strong><span>แถบโหลดหายไป ภาพขึ้นมา เสร็จเรียบร้อย</span></div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <h4>กฎข้อเดียวที่กำหนดทุกอย่าง</h4>
+    <p>หน้าเว็บ <b>ห้าม</b> คุยกับเครื่องสร้างภาพโดยตรง ทุกคำขอต้องผ่านสมองเสมอ — เพราะนั่นคือสิ่งที่ทำให้สมองตรวจตัวตนได้ จดบันทึกได้ และจัดคิวได้ <b>ถ้าข้ามขั้นนี้ จะเสียทั้ง 3 อย่างพร้อมกันทันที</b></p>
+  </div>
+
+  <footer class="foot">
+    ตำแหน่งงานและหน้าที่มาจาก <b>2.png</b> · ระบบและเลข IP มาจาก <b>1.png</b> · เครื่องคอมพิวเตอร์มาจาก <b>3.png</b><br>
+    อะไรที่ไม่ได้อยู่ในภาพทั้งสาม ถือเป็นข้อเสนอแนะ ไม่ใช่ข้อบังคับ — ทีมเปลี่ยนได้
+  </footer>
+
+</div>
+
+</body>
+</html>
