@@ -247,12 +247,12 @@
               <div class="flex justify-between items-start gap-2">
                 <div>
                   <h3 class="font-bold text-base">SD.Next</h3>
-                  <div class="text-[11px] font-mono text-slate-500 mt-0.5">79a2f8c · python 3.11</div>
+                  <div id="ver-sdnext" class="text-[11px] font-mono text-slate-500 mt-0.5">79a2f8c · python 3.11</div>
                 </div>
                 <span id="badge-sdnext" class="px-2 py-0.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-full border border-slate-700">Stopped</span>
               </div>
               <p class="text-sm text-slate-400 flex-1">Diffusers-first WebUI with wide model support and built-in queueing.</p>
-              <div class="flex items-center gap-2 text-[11px]">
+              <div id="upd-avail-sdnext" class="flex items-center gap-2 text-[11px]">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true"></span>
                 <span class="text-amber-400 font-medium">Update available</span>
                 <span class="font-mono text-slate-500">79a2f8c → 8b31d02</span>
@@ -797,11 +797,10 @@
   const PKGS = {
     comfyui: { name: 'ComfyUI',        port: 8188, status: 'running', startedAt: Date.now() - 34 * 60000, tab: 'comfyui' },
     forge:   { name: 'SD WebUI Forge', port: 7860, status: 'stopped', startedAt: null, tab: 'system' },
-    sdnext:  { name: 'SD.Next',        port: 7861, status: 'stopped', startedAt: null, tab: 'sdnext' },
+    sdnext:  { name: 'SD.Next',        port: 7861, status: 'stopped', startedAt: null, tab: 'sdnext', version: '79a2f8c', update: '8b31d02' },
     fooocus: { name: 'Fooocus',        port: 7865, status: 'stopped', startedAt: null, tab: 'system' }
   };
-  const gpu = { util: 63, vram: 14.6, temp: 66, hist: [] };
-  for (let i = 0; i < 48; i++) gpu.hist.push(58 + Math.sin(i / 4.2) * 16 + Math.random() * 7);
+  const gpu = { util: 63, vram: 14.6, temp: 66 };
   let downloads = [{ name: 'DreamShaper XL Turbo', sizeMB: 6870, doneMB: 4270, speed: 34 }];
   const logs = { comfyui: [], sdnext: [], system: [] };
   let consoleTab = 'comfyui';
@@ -822,6 +821,7 @@
   };
   const BTN_LAUNCH = 'bg-indigo-600 hover:bg-indigo-500 font-medium transition';
   const BTN_STOP   = 'bg-slate-800 hover:bg-slate-700 font-medium transition';
+  const BTN_BUSY   = 'bg-slate-800 font-medium transition opacity-40 cursor-not-allowed';
   const OPEN_ON  = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition';
   const OPEN_OFF = 'flex-1 bg-slate-800 text-sm py-2 rounded-lg font-medium transition opacity-40 cursor-not-allowed';
   const NAV_ON  = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left bg-indigo-600/20 text-indigo-400';
@@ -909,6 +909,9 @@
 
   /* ---------- packages ---------- */
   function anyRunning() { return Object.values(PKGS).some(p => p.status === 'running'); }
+  function toggleClass(p) {
+    return p.status === 'updating' ? BTN_BUSY : p.status === 'running' ? BTN_STOP : BTN_LAUNCH;
+  }
   function renderPkg(id) {
     const p = PKGS[id];
     const badge = $('#badge-' + id);
@@ -918,13 +921,13 @@
     const toggle = $('#btn-toggle-' + id);
     if (toggle) {
       toggle.textContent = p.status === 'running' ? 'Stop' : 'Launch';
-      toggle.className = 'flex-1 text-sm py-2 rounded-lg ' + (p.status === 'running' ? BTN_STOP : BTN_LAUNCH);
+      toggle.className = 'flex-1 text-sm py-2 rounded-lg ' + toggleClass(p);
       toggle.disabled = p.status === 'updating';
     }
     const dashBtn = $('#dash-btn-' + id);
     if (dashBtn) {
       dashBtn.textContent = p.status === 'running' ? 'Stop' : 'Launch';
-      dashBtn.className = 'text-xs px-3 py-1.5 rounded-lg ' + (p.status === 'running' ? BTN_STOP : BTN_LAUNCH);
+      dashBtn.className = 'text-xs px-3 py-1.5 rounded-lg ' + toggleClass(p);
       dashBtn.disabled = p.status === 'updating';
     }
     const open = $('#btn-open-' + id);
@@ -979,11 +982,13 @@
     const p = PKGS.sdnext;
     if (p.status === 'running') { toast('Stop SD.Next before updating', 'warn'); return; }
     if (p.status === 'updating') return;
+    if (!p.update) { toast('SD.Next is already up to date', 'info'); return; }
+    const target = p.update;
     p.status = 'updating';
     renderPkg('sdnext'); renderUptimes();
     $('#up-row-sdnext').classList.remove('hidden');
     $('#btn-update-sdnext').disabled = true;
-    pushLog('sdnext', 'INFO', 'git fetch origin — 79a2f8c → 8b31d02');
+    pushLog('sdnext', 'INFO', 'git fetch origin — ' + p.version + ' → ' + target);
     let pct = 0;
     const iv = setInterval(() => {
       pct += 9 + Math.random() * 8;
@@ -992,10 +997,14 @@
         clearInterval(iv);
         setTimeout(() => {
           p.status = 'stopped';
+          p.version = target;
+          p.update = null;
           $('#up-row-sdnext').classList.add('hidden');
-          $('#btn-update-sdnext').disabled = false;
-          pushLog('sdnext', 'OK', 'update complete — now at 8b31d02');
-          toast('SD.Next updated to 8b31d02', 'success');
+          $('#ver-sdnext').textContent = target + ' · python 3.11';
+          $('#upd-avail-sdnext').classList.add('hidden');
+          $('#btn-update-sdnext').classList.add('hidden');
+          pushLog('sdnext', 'OK', 'update complete — now at ' + target);
+          toast('SD.Next updated to ' + target, 'success');
           renderPkg('sdnext'); renderUptimes();
         }, 400);
       }
@@ -1045,40 +1054,6 @@
   }
 
   /* ---------- system stats ---------- */
-  function setMeter(el, pct, warnAt, dangerAt) {
-    el.style.width = Math.min(100, pct) + '%';
-    el.className = 'h-full rounded-full ' +
-      (pct >= dangerAt ? 'bg-rose-400' : pct >= warnAt ? 'bg-amber-400' : 'bg-indigo-500');
-  }
-  function drawSpark() {
-    const c = $('#gpu-spark');
-    if (!c || c.clientWidth === 0) return;
-    const dpr = window.devicePixelRatio || 1;
-    const w = c.width = c.clientWidth * dpr;
-    const h = c.height = c.clientHeight * dpr;
-    const ctx = c.getContext('2d');
-    ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = 'rgba(148,163,184,.12)';
-    ctx.lineWidth = 1;
-    [0.25, 0.5, 0.75].forEach(f => {
-      ctx.beginPath(); ctx.moveTo(0, h * f); ctx.lineTo(w, h * f); ctx.stroke();
-    });
-    const pts = gpu.hist.map((v, i) => [i / (gpu.hist.length - 1) * w, h - (v / 100) * (h - 4 * dpr) - 2 * dpr]);
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, 'rgba(99,102,241,.30)');
-    grad.addColorStop(1, 'rgba(99,102,241,0)');
-    ctx.beginPath();
-    pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
-    ctx.fillStyle = grad; ctx.fill();
-    ctx.beginPath();
-    pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-    ctx.strokeStyle = '#818CF8'; ctx.lineWidth = 1.5 * dpr; ctx.stroke();
-    const [ex, ey] = pts[pts.length - 1];
-    ctx.beginPath(); ctx.arc(ex, ey, 2.5 * dpr, 0, Math.PI * 2);
-    ctx.fillStyle = '#C7D2FE'; ctx.fill();
-    ctx.strokeStyle = '#020617'; ctx.lineWidth = 1.5 * dpr; ctx.stroke();
-  }
   function tickStats() {
     const busy = anyRunning();
     const utilTarget = busy ? 55 + Math.random() * 34 : 3 + Math.random() * 4;
@@ -1086,8 +1061,6 @@
     gpu.util += (utilTarget - gpu.util) * 0.35;
     gpu.vram += (vramTarget - gpu.vram) * 0.18;
     gpu.temp += ((38 + gpu.util * 0.48) - gpu.temp) * 0.25;
-    gpu.hist.push(gpu.util);
-    if (gpu.hist.length > 48) gpu.hist.shift();
 
     const u = Math.round(gpu.util), v = gpu.vram.toFixed(1), t = Math.round(gpu.temp);
     $('#side-gpu-t').textContent = u + '%';
@@ -1099,7 +1072,6 @@
     sideTemp.className = 'text-[11px] font-mono tabular-nums ' + (t >= 85 ? 'text-rose-400' : t >= 75 ? 'text-amber-400' : 'text-emerald-400');
     $('#hdr-gpu').textContent = 'GPU ' + u + '%';
     $('#hdr-vram').textContent = 'VRAM ' + v + '/24';
-    drawSpark();
   }
   function tickLogs() {
     Object.values(PKGS).forEach(p => {
@@ -1122,7 +1094,6 @@
     $$('[data-view]').forEach(s => s.classList.toggle('hidden', s.dataset.view !== view));
     $$('.nav-btn').forEach(b => { b.className = b.dataset.nav === view ? NAV_ON : NAV_OFF; });
     $('#page-title').textContent = TITLES[view];
-    if (view === 'dashboard') drawSpark();
   }
 
   /* ---------- model filters ---------- */
@@ -1258,7 +1229,6 @@
   $('#set-theme').addEventListener('change', e => {
     if (e.target.selectedIndex === 1) toast('Light theme is on the roadmap — this build is dark-only', 'info');
   });
-  window.addEventListener('resize', drawSpark);
 
   /* ---------- boot ---------- */
   pushLog('system', 'INFO', 'Stability Matrix web hub started — mock data, no server attached');
