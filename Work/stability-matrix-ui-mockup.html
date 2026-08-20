@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stability Matrix — Web UI Mockup</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style id="base-style">
+  :root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  body { background: #020617; color-scheme: dark; }
+  #app { font-family: var(--font-sans); }
+  #app .font-mono { font-family: var(--font-mono); }
+  :focus-visible { outline: 2px solid #6366F1; outline-offset: 2px; border-radius: 2px; }
+  * { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+
+  .thumb { position: relative; overflow: hidden; }
+  .thumb::after { content: ""; position: absolute; inset: 0;
+    background: radial-gradient(120% 90% at 20% 0%, rgba(255,255,255,.10), transparent 55%); }
+  .g1 { background: linear-gradient(135deg, #312E81, #818CF8); }
+  .g2 { background: linear-gradient(135deg, #4C1D95, #A78BFA); }
+  .g3 { background: linear-gradient(135deg, #0C4A6E, #38BDF8); }
+  .g4 { background: linear-gradient(135deg, #064E3B, #34D399); }
+  .g5 { background: linear-gradient(135deg, #78350F, #FBBF24); }
+  .g6 { background: linear-gradient(135deg, #881337, #FB7185); }
+  .g7 { background: linear-gradient(135deg, #1E293B, #64748B); }
+  .g8 { background: linear-gradient(135deg, #701A75, #E879F9); }
+
+  .toast { opacity: 0; transform: translateX(12px); transition: opacity .25s ease, transform .25s ease; }
+  .toast.show { opacity: 1; transform: translateX(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app" class="bg-slate-900 text-slate-100 flex flex-col h-screen overflow-hidden text-sm antialiased">
+
+  <div class="flex-1 flex min-h-0">
+
+    <!-- Sidebar -->
+    <aside class="w-60 shrink-0 bg-slate-950 border-r border-slate-800 flex flex-col">
+      <div class="flex items-center gap-2.5 px-4 h-14 border-b border-slate-800/60">
+        <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+        </div>
+        <div class="leading-tight">
+          <div class="font-bold text-[13px] tracking-widest">STABILITY MATRIX</div>
+          <div class="text-[10px] text-slate-500 font-mono">web hub · v0.1.0-mockup</div>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto p-3 space-y-0.5" aria-label="Main">
+        <button data-nav="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span class="flex-1">Dashboard</span>
+        </button>
+        <button data-nav="packages" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+          <span class="flex-1">Packages</span>
+          <span id="nav-run-count" class="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">1 ●</span>
+        </button>
+        <button data-nav="models" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5M2 17l10 5 10-5"/></svg>
+          <span class="flex-1">Models</span>
+          <span class="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400">12</span>
+        </button>
+        <button data-nav="browser" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2z"/></svg>
+          <span class="flex-1">CivitAI Browser</span>
+        </button>
+        <button data-nav="outputs" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg>
+          <span class="flex-1">Outputs</span>
+        </button>
+        <button data-nav="settings" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>
+          <span class="flex-1">Settings</span>
+        </button>
+      </nav>
+
+      <div class="p-3 space-y-3 border-t border-slate-800/60">
+        <div class="bg-slate-900 rounded-xl border border-slate-800 p-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase tracking-wider text-slate-500 font-medium">System load</span>
+            <span id="side-temp" class="text-[11px] font-mono tabular-nums text-emerald-400">66°C</span>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] font-mono tabular-nums text-slate-400 mb-1"><span>GPU</span><span id="side-gpu-t">63%</span></div>
+            <div class="h-1.5 rounded-full bg-slate-800" role="presentation"><div id="side-gpu" class="h-full rounded-full bg-indigo-500" style="width:63%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] font-mono tabular-nums text-slate-400 mb-1"><span>VRAM</span><span id="side-vram-t">14.6 / 24 GB</span></div>
+            <div class="h-1.5 rounded-full bg-slate-800" role="presentation"><div id="side-vram" class="h-full rounded-full bg-indigo-500" style="width:61%"></div></div>
+          </div>
+        </div>
+        <button id="side-launch" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-medium transition">Quick launch · ComfyUI</button>
+      </div>
+    </aside>
+
+    <!-- Main column -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- Header -->
+      <header class="h-14 shrink-0 border-b border-slate-800 bg-slate-900/70 backdrop-blur flex items-center justify-between gap-4 px-6">
+        <h1 id="page-title" class="text-lg font-semibold truncate">Dashboard</h1>
+        <div class="flex items-center gap-3">
+          <div class="relative hidden md:block">
+            <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="global-search" type="search" placeholder="Search models…" aria-label="Search models"
+              class="w-64 bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-12 py-1.5 text-sm placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none">
+            <kbd class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-slate-800 rounded px-1.5 py-0.5">⌘K</kbd>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 text-[11px] font-mono tabular-nums">
+            <span id="hdr-gpu" class="px-2 py-1 rounded-md bg-slate-950 border border-slate-800 text-slate-300">GPU 63%</span>
+            <span id="hdr-vram" class="px-2 py-1 rounded-md bg-slate-950 border border-slate-800 text-slate-300">VRAM 14.6/24</span>
+          </div>
+          <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>Connected
+          </span>
+        </div>
+      </header>
+
+      <!-- Workspace -->
+      <div id="workspace" class="flex-1 overflow-y-auto">
+
+        <!-- ============ DASHBOARD ============ -->
+        <section data-view="dashboard" class="p-6 space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">GPU utilization</div>
+              <div class="flex items-baseline gap-1 mb-2">
+                <span id="stat-util" class="text-2xl font-mono tabular-nums font-semibold">63</span>
+                <span class="text-slate-500 text-xs font-mono">%</span>
+              </div>
+              <canvas id="gpu-spark" class="w-full h-8 block" aria-label="GPU utilization, last 2 minutes" role="img"></canvas>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">VRAM</div>
+              <div class="flex items-baseline gap-1 mb-3">
+                <span id="stat-vram" class="text-2xl font-mono tabular-nums font-semibold">14.6</span>
+                <span class="text-slate-500 text-xs font-mono">/ 24 GB</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-800"><div id="stat-vram-bar" class="h-full rounded-full bg-indigo-500" style="width:61%"></div></div>
+              <div class="mt-2 text-[11px] text-slate-500">RTX 4090 · CUDA 12.4</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">GPU temperature</div>
+              <div class="flex items-baseline gap-1 mb-3">
+                <span id="stat-temp" class="text-2xl font-mono tabular-nums font-semibold">66</span>
+                <span class="text-slate-500 text-xs font-mono">°C</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-800"><div id="stat-temp-bar" class="h-full rounded-full bg-emerald-400" style="width:55%"></div></div>
+              <div class="mt-2 text-[11px] text-slate-500">Fan 41% · 285 W</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">Data directory</div>
+              <div class="flex items-baseline gap-1 mb-3">
+                <span class="text-2xl font-mono tabular-nums font-semibold">386</span>
+                <span class="text-slate-500 text-xs font-mono">GB free</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-800"><div class="h-full rounded-full bg-indigo-500" style="width:62%"></div></div>
+              <div class="mt-2 text-[11px] text-slate-500 font-mono truncate">/srv/stability-matrix/data</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="xl:col-span-2 bg-slate-950 border border-slate-800 rounded-xl">
+              <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800/60">
+                <h2 class="font-semibold">Packages</h2>
+                <button data-nav="packages" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Manage →</button>
+              </div>
+              <ul class="divide-y divide-slate-800/60">
+                <li class="flex items-center gap-3 px-5 py-3">
+                  <span id="dash-dot-comfyui" class="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden="true"></span>
+                  <span class="font-medium w-40 truncate">ComfyUI</span>
+                  <span class="text-xs font-mono text-slate-500">:8188</span>
+                  <span id="dash-up-comfyui" class="text-xs text-slate-500 flex-1">up 34m</span>
+                  <button id="dash-btn-comfyui" data-action="toggle-pkg" data-pkg="comfyui" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 font-medium transition">Stop</button>
+                </li>
+                <li class="flex items-center gap-3 px-5 py-3">
+                  <span id="dash-dot-forge" class="w-2 h-2 rounded-full bg-slate-600 shrink-0" aria-hidden="true"></span>
+                  <span class="font-medium w-40 truncate">SD WebUI Forge</span>
+                  <span class="text-xs font-mono text-slate-500">:7860</span>
+                  <span id="dash-up-forge" class="text-xs text-slate-500 flex-1">—</span>
+                  <button id="dash-btn-forge" data-action="toggle-pkg" data-pkg="forge" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium transition">Launch</button>
+                </li>
+                <li class="flex items-center gap-3 px-5 py-3">
+                  <span id="dash-dot-sdnext" class="w-2 h-2 rounded-full bg-slate-600 shrink-0" aria-hidden="true"></span>
+                  <span class="font-medium w-40 truncate">SD.Next</span>
+                  <span class="text-xs font-mono text-slate-500">:7861</span>
+                  <span id="dash-up-sdnext" class="text-xs text-slate-500 flex-1">—</span>
+                  <button id="dash-btn-sdnext" data-action="toggle-pkg" data-pkg="sdnext" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium transition">Launch</button>
+                </li>
+                <li class="flex items-center gap-3 px-5 py-3">
+                  <span id="dash-dot-fooocus" class="w-2 h-2 rounded-full bg-slate-600 shrink-0" aria-hidden="true"></span>
+                  <span class="font-medium w-40 truncate">Fooocus</span>
+                  <span class="text-xs font-mono text-slate-500">:7865</span>
+                  <span id="dash-up-fooocus" class="text-xs text-slate-500 flex-1">—</span>
+                  <button id="dash-btn-fooocus" data-action="toggle-pkg" data-pkg="fooocus" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium transition">Launch</button>
+                </li>
+              </ul>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl">
+              <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800/60">
+                <h2 class="font-semibold">Downloads</h2>
+                <button data-nav="browser" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Browse →</button>
+              </div>
+              <div id="dl-list" class="p-5 space-y-4"></div>
+              <div id="dl-empty" class="hidden px-5 pb-5 text-xs text-slate-500">No active downloads. Import models from the CivitAI Browser.</div>
+            </div>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800/60">
+              <h2 class="font-semibold">Recent outputs</h2>
+              <button data-nav="outputs" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Open gallery →</button>
+            </div>
+            <div class="p-5 grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <button data-nav="outputs" class="thumb g1 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+              <button data-nav="outputs" class="thumb g3 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+              <button data-nav="outputs" class="thumb g5 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+              <button data-nav="outputs" class="thumb g4 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+              <button data-nav="outputs" class="thumb g8 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+              <button data-nav="outputs" class="thumb g6 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open gallery"></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ PACKAGES ============ -->
+        <section data-view="packages" class="p-6 space-y-5 hidden">
+          <div class="flex items-center justify-between gap-4">
+            <p id="pkg-summary" class="text-slate-400 text-sm">4 installed · 1 running</p>
+            <button data-action="add-package" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-4 py-2 rounded-lg font-medium transition">+ Add Package</button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 hover:border-slate-700 transition">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <h3 class="font-bold text-base">ComfyUI</h3>
+                  <div class="text-[11px] font-mono text-slate-500 mt-0.5">v0.3.34 · python 3.11</div>
+                </div>
+                <span id="badge-comfyui" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/20">Running</span>
+              </div>
+              <p class="text-sm text-slate-400 flex-1">Node-based graph interface for complex SDXL / Flux pipelines. Full control over every step.</p>
+              <div class="text-[11px] font-mono text-slate-500 flex gap-3"><span>:8188</span><span>12.4 GB</span><span>torch 2.4</span></div>
+              <div class="flex gap-2">
+                <button id="btn-toggle-comfyui" data-action="toggle-pkg" data-pkg="comfyui" class="flex-1 bg-slate-800 hover:bg-slate-700 text-sm py-2 rounded-lg font-medium transition">Stop</button>
+                <button id="btn-open-comfyui" data-action="open-webui" data-pkg="comfyui" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Open WebUI</button>
+                <button data-console-tab="comfyui" class="px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition" aria-label="ComfyUI logs" title="Logs">
+                  <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>
+                </button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 hover:border-slate-700 transition">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <h3 class="font-bold text-base">SD WebUI Forge</h3>
+                  <div class="text-[11px] font-mono text-slate-500 mt-0.5">f2.0.1 · python 3.10</div>
+                </div>
+                <span id="badge-forge" class="px-2 py-0.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-full border border-slate-700">Stopped</span>
+              </div>
+              <p class="text-sm text-slate-400 flex-1">High-performance fork of SD WebUI with aggressive memory optimizations. Best for 8–12 GB cards.</p>
+              <div class="text-[11px] font-mono text-slate-500 flex gap-3"><span>:7860</span><span>9.8 GB</span><span>torch 2.3</span></div>
+              <div class="flex gap-2">
+                <button id="btn-toggle-forge" data-action="toggle-pkg" data-pkg="forge" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Launch</button>
+                <button id="btn-open-forge" data-action="open-webui" data-pkg="forge" class="flex-1 bg-slate-800 text-sm py-2 rounded-lg font-medium transition opacity-40 cursor-not-allowed" disabled>Open WebUI</button>
+                <button data-console-tab="system" class="px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition" aria-label="Forge logs" title="Logs">
+                  <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>
+                </button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 hover:border-slate-700 transition">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <h3 class="font-bold text-base">SD.Next</h3>
+                  <div class="text-[11px] font-mono text-slate-500 mt-0.5">79a2f8c · python 3.11</div>
+                </div>
+                <span id="badge-sdnext" class="px-2 py-0.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-full border border-slate-700">Stopped</span>
+              </div>
+              <p class="text-sm text-slate-400 flex-1">Diffusers-first WebUI with wide model support and built-in queueing.</p>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true"></span>
+                <span class="text-amber-400 font-medium">Update available</span>
+                <span class="font-mono text-slate-500">79a2f8c → 8b31d02</span>
+              </div>
+              <div id="up-row-sdnext" class="hidden">
+                <div class="flex justify-between text-[11px] font-mono tabular-nums text-slate-400 mb-1"><span>Updating…</span><span id="up-pct-sdnext">0%</span></div>
+                <div class="h-1.5 rounded-full bg-slate-800"><div id="up-bar-sdnext" class="h-full rounded-full bg-amber-400" style="width:0%"></div></div>
+              </div>
+              <div class="text-[11px] font-mono text-slate-500 flex gap-3"><span>:7861</span><span>11.1 GB</span><span>torch 2.4</span></div>
+              <div class="flex gap-2">
+                <button id="btn-toggle-sdnext" data-action="toggle-pkg" data-pkg="sdnext" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Launch</button>
+                <button id="btn-update-sdnext" data-action="update-pkg" data-pkg="sdnext" class="flex-1 bg-slate-900 border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-sm py-2 rounded-lg font-medium transition">Update</button>
+                <button data-console-tab="sdnext" class="px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition" aria-label="SD.Next logs" title="Logs">
+                  <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>
+                </button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 hover:border-slate-700 transition">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <h3 class="font-bold text-base">Fooocus</h3>
+                  <div class="text-[11px] font-mono text-slate-500 mt-0.5">v2.5.5 · python 3.10</div>
+                </div>
+                <span id="badge-fooocus" class="px-2 py-0.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-full border border-slate-700">Stopped</span>
+              </div>
+              <p class="text-sm text-slate-400 flex-1">Minimal, prompt-first interface. Midjourney-style workflow on top of SDXL.</p>
+              <div class="text-[11px] font-mono text-slate-500 flex gap-3"><span>:7865</span><span>7.2 GB</span><span>torch 2.1</span></div>
+              <div class="flex gap-2">
+                <button id="btn-toggle-fooocus" data-action="toggle-pkg" data-pkg="fooocus" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Launch</button>
+                <button id="btn-open-fooocus" data-action="open-webui" data-pkg="fooocus" class="flex-1 bg-slate-800 text-sm py-2 rounded-lg font-medium transition opacity-40 cursor-not-allowed" disabled>Open WebUI</button>
+                <button data-console-tab="system" class="px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition" aria-label="Fooocus logs" title="Logs">
+                  <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>
+                </button>
+              </div>
+            </article>
+
+            <button data-action="add-package" class="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/5 rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-indigo-400 transition min-h-[220px]">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <span class="font-medium">Add Package</span>
+              <span class="text-xs text-slate-600">Browse the catalog</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ============ MODELS ============ -->
+        <section data-view="models" class="p-6 hidden">
+          <div class="flex flex-col lg:flex-row gap-5">
+
+            <aside class="lg:w-52 shrink-0 space-y-5">
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-2 px-1">Categories</div>
+                <div class="space-y-0.5" role="group" aria-label="Model categories">
+                  <button data-cat="all" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>All models</span><span class="font-mono tabular-nums text-xs self-center">12</span></button>
+                  <button data-cat="checkpoint" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>Checkpoints</span><span class="font-mono tabular-nums text-xs self-center">4</span></button>
+                  <button data-cat="lora" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>LoRA</span><span class="font-mono tabular-nums text-xs self-center">3</span></button>
+                  <button data-cat="vae" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>VAE</span><span class="font-mono tabular-nums text-xs self-center">1</span></button>
+                  <button data-cat="embedding" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>Embeddings</span><span class="font-mono tabular-nums text-xs self-center">1</span></button>
+                  <button data-cat="controlnet" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>ControlNet</span><span class="font-mono tabular-nums text-xs self-center">2</span></button>
+                  <button data-cat="upscaler" class="cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left"><span>Upscalers</span><span class="font-mono tabular-nums text-xs self-center">1</span></button>
+                </div>
+              </div>
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-2 px-1">Base model</div>
+                <div class="flex flex-wrap gap-1.5 px-1" role="group" aria-label="Base model filter">
+                  <button data-base="all" class="base-btn text-xs px-2.5 py-1 rounded-full border transition">All</button>
+                  <button data-base="sd15" class="base-btn text-xs px-2.5 py-1 rounded-full border transition">SD 1.5</button>
+                  <button data-base="sdxl" class="base-btn text-xs px-2.5 py-1 rounded-full border transition">SDXL</button>
+                  <button data-base="flux" class="base-btn text-xs px-2.5 py-1 rounded-full border transition">Flux</button>
+                </div>
+              </div>
+            </aside>
+
+            <div class="flex-1 min-w-0 space-y-4">
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="relative flex-1 min-w-[180px]">
+                  <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                  <input id="models-search" type="search" placeholder="Filter by name, tag or trigger word…" aria-label="Filter models"
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <select id="models-sort" aria-label="Sort models" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-300 focus:border-indigo-500 focus:outline-none">
+                  <option value="name">Sort · Name A–Z</option>
+                  <option value="size">Sort · Largest first</option>
+                </select>
+              </div>
+
+              <div id="models-grid" class="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4">
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="checkpoint" data-base="sdxl" data-name="sdxl base 1.0 stabilityai" data-size="6938">
+                  <div class="thumb g1 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="SDXL Base 1.0">SDXL Base 1.0</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">6.9 GB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="checkpoint" data-base="sdxl" data-name="juggernaut xl v9 photoreal" data-size="7105">
+                  <div class="thumb g5 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Juggernaut XL v9">Juggernaut XL v9</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">7.1 GB</span>
+                      <span class="ml-auto flex items-center gap-1 text-amber-400" title="v10 available"><span class="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true"></span>update</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="checkpoint" data-base="flux" data-name="flux.1 dev fp8" data-size="12180">
+                  <div class="thumb g2 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Flux.1 [dev] fp8">Flux.1 [dev] fp8</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">Flux</span>
+                      <span class="font-mono tabular-nums text-slate-500">11.9 GB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="checkpoint" data-base="sd15" data-name="realistic vision 6.0 photoreal" data-size="2132">
+                  <div class="thumb g7 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Realistic Vision 6.0">Realistic Vision 6.0</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SD 1.5</span>
+                      <span class="font-mono tabular-nums text-slate-500">2.1 GB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="lora" data-base="sdxl" data-name="detail tweaker xl add_detail" data-size="218">
+                  <div class="thumb g3 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">lora</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Detail Tweaker XL">Detail Tweaker XL</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">218 MB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="lora" data-base="sdxl" data-name="pixel art style pixelart" data-size="144">
+                  <div class="thumb g8 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">lora</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Pixel Art Style">Pixel Art Style</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">144 MB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="lora" data-base="sd15" data-name="thai traditional dress chut thai" data-size="128">
+                  <div class="thumb g6 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">lora</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Thai Traditional Dress">Thai Traditional Dress</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SD 1.5</span>
+                      <span class="font-mono tabular-nums text-slate-500">128 MB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="vae" data-base="sdxl" data-name="sdxl vae fp16 fix" data-size="319">
+                  <div class="thumb g4 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">vae</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="sdxl-vae fp16 fix">sdxl-vae fp16 fix</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">319 MB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="embedding" data-base="sd15" data-name="easynegative negative embedding" data-size="1">
+                  <div class="thumb g7 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">emb</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="EasyNegative">EasyNegative</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SD 1.5</span>
+                      <span class="font-mono tabular-nums text-slate-500">24 KB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="controlnet" data-base="sdxl" data-name="controlnet canny sdxl edges" data-size="2502">
+                  <div class="thumb g1 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">cnet</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="Canny SDXL">Canny SDXL</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SDXL</span>
+                      <span class="font-mono tabular-nums text-slate-500">2.5 GB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="controlnet" data-base="sd15" data-name="controlnet openpose sd15 pose" data-size="1445">
+                  <div class="thumb g3 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">cnet</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="OpenPose SD15">OpenPose SD15</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">SD 1.5</span>
+                      <span class="font-mono tabular-nums text-slate-500">1.4 GB</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="model-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition" data-cat="upscaler" data-base="any" data-name="4x ultrasharp upscaler esrgan" data-size="63">
+                  <div class="thumb g4 h-28"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">upsc</span></div>
+                  <div class="p-3 space-y-1.5">
+                    <h3 class="font-medium text-sm truncate" title="4x-UltraSharp">4x-UltraSharp</h3>
+                    <div class="flex items-center gap-1.5 text-[11px]">
+                      <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">Any</span>
+                      <span class="font-mono tabular-nums text-slate-500">63 MB</span>
+                    </div>
+                  </div>
+                </article>
+
+              </div>
+              <p id="models-empty" class="hidden text-sm text-slate-500 py-8 text-center">No models match this filter. Clear the search or import from the CivitAI Browser.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CIVITAI BROWSER ============ -->
+        <section data-view="browser" class="p-6 space-y-5 hidden">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input type="search" placeholder="Search CivitAI…" aria-label="Search CivitAI"
+                class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none">
+            </div>
+            <select aria-label="Sort results" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-300 focus:border-indigo-500 focus:outline-none">
+              <option>Most downloaded</option><option>Highest rated</option><option>Newest</option>
+            </select>
+            <button id="sfw-toggle" aria-pressed="true" class="text-xs px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-medium transition">SFW only · on</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g5 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="Juggernaut XL v10">Juggernaut XL v10</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@KandooAI</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 1.9M</span><span>★ 4.9</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SDXL</span>
+                </div>
+                <button data-action="import-model" data-name="Juggernaut XL v10" data-size="7250" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Import · 7.3 GB</button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g3 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="DreamShaper XL Turbo">DreamShaper XL Turbo</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@Lykon</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 1.4M</span><span>★ 4.8</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SDXL</span>
+                </div>
+                <button data-action="import-model" data-name="DreamShaper XL Turbo" data-size="6870" class="mt-auto w-full bg-slate-800 text-slate-500 text-sm py-2 rounded-lg font-medium cursor-not-allowed" disabled>Queued ✓</button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g1 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="RealVisXL V5">RealVisXL V5</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@SG_161222</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 986K</span><span>★ 4.9</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SDXL</span>
+                </div>
+                <button data-action="import-model" data-name="RealVisXL V5" data-size="6940" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Import · 6.9 GB</button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g8 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">ckpt</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="Anime Pastel Dream">Anime Pastel Dream</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@Lykon</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 742K</span><span>★ 4.7</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SD 1.5</span>
+                </div>
+                <button data-action="import-model" data-name="Anime Pastel Dream" data-size="2130" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Import · 2.1 GB</button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g4 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">cnet</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="ControlNet Union SDXL">ControlNet Union SDXL</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@xinsir</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 511K</span><span>★ 4.8</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SDXL</span>
+                </div>
+                <button data-action="import-model" data-name="ControlNet Union SDXL" data-size="2510" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Import · 2.5 GB</button>
+              </div>
+            </article>
+
+            <article class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition flex flex-col">
+              <div class="thumb g6 h-40"><span class="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-md bg-slate-950/70 text-[10px] font-medium tracking-wide uppercase text-slate-200 backdrop-blur">lora</span></div>
+              <div class="p-4 space-y-2 flex-1 flex flex-col">
+                <h3 class="font-medium truncate" title="Film Grain Analog LoRA">Film Grain Analog LoRA</h3>
+                <div class="text-xs text-slate-500">by <span class="text-slate-400">@renderartist</span></div>
+                <div class="flex items-center gap-3 text-[11px] font-mono tabular-nums text-slate-400">
+                  <span>⬇ 233K</span><span>★ 4.6</span>
+                  <span class="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 font-sans font-medium">SDXL</span>
+                </div>
+                <button data-action="import-model" data-name="Film Grain Analog LoRA" data-size="152" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition">Import · 152 MB</button>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- ============ OUTPUTS ============ -->
+        <section data-view="outputs" class="p-6 space-y-6 hidden">
+          <div class="flex items-center justify-between gap-4">
+            <p class="text-slate-400 text-sm">10 images · 2 days</p>
+            <select aria-label="Filter by date" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-300 focus:border-indigo-500 focus:outline-none">
+              <option>All time</option><option>Today</option><option>Last 7 days</option>
+            </select>
+          </div>
+
+          <div>
+            <h2 class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-3">Today — 17 Jul 2026</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+              <button class="output-thumb thumb g1 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00341_.png" data-prompt="cinematic portrait of a khon mask dancer, golden hour, 85mm, intricate thai ornament, volumetric light" data-model="Juggernaut XL v9" data-seed="982143557" data-steps="30" data-cfg="6.5" data-sampler="dpmpp_2m_sde · karras" data-size="1024 × 1344"></button>
+              <button class="output-thumb thumb g3 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00340_.png" data-prompt="isometric cyberpunk street food stall, neon rain, reflective puddles, dense detail" data-model="Flux.1 [dev] fp8" data-seed="66102481" data-steps="28" data-cfg="3.5" data-sampler="euler · simple" data-size="1024 × 1024"></button>
+              <button class="output-thumb thumb g5 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00339_.png" data-prompt="studio photo of a ceramic teapot, softbox lighting, product shot, seamless background" data-model="RealVisXL V5" data-seed="445090112" data-steps="32" data-cfg="7.0" data-sampler="dpmpp_2m · karras" data-size="1024 × 1024"></button>
+              <button class="output-thumb thumb g4 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00338_.png" data-prompt="watercolor koi pond, minimal composition, negative space, soft morning light" data-model="SDXL Base 1.0" data-seed="120583991" data-steps="26" data-cfg="6.0" data-sampler="euler_a" data-size="1344 × 768"></button>
+              <button class="output-thumb thumb g8 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00337_.png" data-prompt="pastel anime girl with paper umbrella in summer rain, bokeh, dreamy" data-model="Anime Pastel Dream" data-seed="778812345" data-steps="24" data-cfg="7.5" data-sampler="dpmpp_2m · karras" data-size="768 × 1152"></button>
+              <button class="output-thumb thumb g6 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00336_.png" data-prompt="analog film photo of a night market, film grain, kodak portra, motion blur crowd" data-model="Juggernaut XL v9" data-seed="90331276" data-steps="30" data-cfg="6.5" data-sampler="dpmpp_2m_sde · karras" data-size="1216 × 832"></button>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-3">Yesterday — 16 Jul 2026</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+              <button class="output-thumb thumb g7 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00335_.png" data-prompt="architectural render of a floating glass pavilion above a rice terrace, dusk" data-model="Flux.1 [dev] fp8" data-seed="55120987" data-steps="28" data-cfg="3.5" data-sampler="euler · simple" data-size="1344 × 768"></button>
+              <button class="output-thumb thumb g2 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00334_.png" data-prompt="macro shot of a violet beetle on a fern, dew drops, shallow depth of field" data-model="RealVisXL V5" data-seed="31240956" data-steps="32" data-cfg="7.0" data-sampler="dpmpp_2m · karras" data-size="1024 × 1024"></button>
+              <button class="output-thumb thumb g5 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00333_.png" data-prompt="pixel art tavern interior, warm lamplight, 64x64 sprite style, crisp dithering" data-model="SDXL Base 1.0 + Pixel Art Style" data-seed="88410233" data-steps="26" data-cfg="6.0" data-sampler="euler_a" data-size="1024 × 1024"></button>
+              <button class="output-thumb thumb g3 aspect-square rounded-lg hover:ring-2 ring-indigo-500 transition" aria-label="Open image details"
+                data-file="ComfyUI_00332_.png" data-prompt="ultrawide seascape at blue hour, long exposure, minimal, single lighthouse" data-model="Juggernaut XL v9" data-seed="17750092" data-steps="30" data-cfg="6.5" data-sampler="dpmpp_2m_sde · karras" data-size="1536 × 640"></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SETTINGS ============ -->
+        <section data-view="settings" class="p-6 hidden">
+          <div class="max-w-3xl space-y-5">
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+              <h2 class="font-semibold">Paths &amp; storage</h2>
+              <div class="space-y-1.5">
+                <label for="set-data-dir" class="text-xs text-slate-400 font-medium">Data directory</label>
+                <div class="flex gap-2">
+                  <input id="set-data-dir" type="text" value="/srv/stability-matrix/data" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none">
+                  <button class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition">Browse…</button>
+                </div>
+                <p class="text-[11px] text-slate-500">Packages, models and outputs all live under this directory.</p>
+              </div>
+              <div class="space-y-1.5">
+                <span class="text-xs text-slate-400 font-medium">Shared model library</span>
+                <div class="text-sm font-mono text-slate-500 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2">/srv/stability-matrix/data/Models</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+              <h2 class="font-semibold">Model sharing strategy</h2>
+              <label class="flex items-start gap-3 p-3 rounded-lg border border-indigo-500/40 bg-indigo-500/5 cursor-pointer">
+                <input type="radio" name="link-mode" checked class="mt-0.5 accent-indigo-500">
+                <span>
+                  <span class="block text-sm font-medium">Symlink <span class="text-indigo-400">(recommended)</span></span>
+                  <span class="block text-xs text-slate-400 mt-0.5">Zero-copy — every package sees one shared library. Saves tens of GB.</span>
+                </span>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-800 hover:border-slate-700 cursor-pointer transition">
+                <input type="radio" name="link-mode" class="mt-0.5 accent-indigo-500">
+                <span>
+                  <span class="block text-sm font-medium">Copy</span>
+                  <span class="block text-xs text-slate-400 mt-0.5">Duplicate files into each package. Safer on filesystems without symlink support.</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+              <h2 class="font-semibold">Integrations</h2>
+              <div class="space-y-1.5">
+                <label for="set-civitai-key" class="text-xs text-slate-400 font-medium">CivitAI API key</label>
+                <input id="set-civitai-key" type="password" value="placeholder-key" autocomplete="off" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none">
+                <p class="text-[11px] text-slate-500">Required for gated downloads and higher rate limits.</p>
+              </div>
+              <div class="space-y-1.5">
+                <label for="set-hf-token" class="text-xs text-slate-400 font-medium">Hugging Face token</label>
+                <input id="set-hf-token" type="password" placeholder="hf_…" autocomplete="off" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+              <h2 class="font-semibold">Appearance</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label for="set-theme" class="text-xs text-slate-400 font-medium">Theme</label>
+                  <select id="set-theme" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                    <option>Dark (default)</option><option>Light — planned</option>
+                  </select>
+                </div>
+                <div class="space-y-1.5">
+                  <label for="set-lang" class="text-xs text-slate-400 font-medium">Language</label>
+                  <select id="set-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                    <option>English</option><option>ไทย — planned</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+              <h2 class="font-semibold">Advanced</h2>
+              <label class="flex items-center justify-between gap-4 cursor-pointer">
+                <span>
+                  <span class="block text-sm font-medium">Auto-update packages</span>
+                  <span class="block text-xs text-slate-400 mt-0.5">Check for package updates on startup.</span>
+                </span>
+                <input type="checkbox" checked class="sr-only peer">
+                <span class="w-9 h-5 shrink-0 rounded-full bg-slate-700 peer-checked:bg-indigo-600 relative transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4" aria-hidden="true"></span>
+              </label>
+              <label class="flex items-center justify-between gap-4 cursor-pointer">
+                <span>
+                  <span class="block text-sm font-medium">Anonymous telemetry</span>
+                  <span class="block text-xs text-slate-400 mt-0.5">Share crash reports to help improve the hub.</span>
+                </span>
+                <input type="checkbox" class="sr-only peer">
+                <span class="w-9 h-5 shrink-0 rounded-full bg-slate-700 peer-checked:bg-indigo-600 relative transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4" aria-hidden="true"></span>
+              </label>
+              <label class="flex items-center justify-between gap-4 cursor-pointer">
+                <span>
+                  <span class="block text-sm font-medium">Keep console history</span>
+                  <span class="block text-xs text-slate-400 mt-0.5">Persist the last 5&nbsp;000 log lines across restarts.</span>
+                </span>
+                <input type="checkbox" checked class="sr-only peer">
+                <span class="w-9 h-5 shrink-0 rounded-full bg-slate-700 peer-checked:bg-indigo-600 relative transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4" aria-hidden="true"></span>
+              </label>
+            </div>
+
+            <div class="flex justify-end">
+              <button data-action="save-settings" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-5 py-2 rounded-lg font-medium transition">Save changes</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Console drawer -->
+  <div id="console" class="hidden h-56 shrink-0 bg-slate-950 border-t border-slate-800 flex-col">
+    <div class="flex items-center gap-2 px-3 h-9 border-b border-slate-800/60 shrink-0">
+      <span class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mr-1">Console</span>
+      <div role="tablist" aria-label="Log source" class="flex gap-1">
+        <button role="tab" data-tab="comfyui" class="tab-btn text-xs px-2.5 py-1 rounded-md font-medium transition">ComfyUI</button>
+        <button role="tab" data-tab="sdnext" class="tab-btn text-xs px-2.5 py-1 rounded-md font-medium transition">SD.Next</button>
+        <button role="tab" data-tab="system" class="tab-btn text-xs px-2.5 py-1 rounded-md font-medium transition">System</button>
+      </div>
+      <div class="flex-1"></div>
+      <label class="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+        <input id="autoscroll" type="checkbox" checked class="accent-indigo-500 w-3.5 h-3.5">Autoscroll
+      </label>
+      <button id="console-clear" class="text-xs px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">Clear</button>
+      <button id="console-close" class="text-slate-500 hover:text-slate-200 px-1.5 transition" aria-label="Close console">✕</button>
+    </div>
+    <div id="console-body" class="flex-1 overflow-y-auto px-4 py-2 font-mono text-xs leading-5"></div>
+  </div>
+
+  <!-- Status bar -->
+  <footer class="h-8 shrink-0 bg-slate-950 border-t border-slate-800 flex items-center gap-4 px-3 text-xs">
+    <div id="sb-procs" class="flex items-center gap-2 min-w-0"></div>
+    <div class="flex-1"></div>
+    <div id="sb-dl" class="hidden items-center gap-2 min-w-0">
+      <span id="sb-dl-name" class="text-slate-400 truncate max-w-[180px]"></span>
+      <span class="w-28 h-1 rounded-full bg-slate-800 overflow-hidden shrink-0"><span id="sb-dl-bar" class="block h-full rounded-full bg-indigo-500" style="width:0%"></span></span>
+      <span id="sb-dl-pct" class="font-mono tabular-nums text-slate-400 w-9">0%</span>
+    </div>
+    <button id="console-toggle" class="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 font-medium transition" aria-expanded="false">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>Console
+    </button>
+    <span class="text-slate-600 font-mono">v0.1.0-mockup</span>
+  </footer>
+
+  <!-- Toasts -->
+  <div id="toast-stack" class="fixed top-16 right-4 z-50 space-y-2 w-80 max-w-[calc(100vw-2rem)]" aria-live="polite"></div>
+
+  <!-- Output lightbox -->
+  <div id="lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm items-center justify-center p-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col sm:flex-row max-h-full" role="dialog" aria-modal="true" aria-label="Image details">
+      <div id="lb-image" class="thumb g1 sm:w-1/2 aspect-square shrink-0"></div>
+      <div class="p-5 flex flex-col gap-3 min-w-0 overflow-y-auto">
+        <div class="flex items-start justify-between gap-3">
+          <h2 id="lb-file" class="font-mono text-sm text-slate-300 truncate">ComfyUI_00341_.png</h2>
+          <button id="lb-close" class="text-slate-500 hover:text-slate-200 transition shrink-0" aria-label="Close">✕</button>
+        </div>
+        <p id="lb-prompt" class="text-sm text-slate-300 leading-relaxed"></p>
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+          <div><dt class="text-slate-500">Model</dt><dd id="lb-model" class="text-slate-300 truncate mt-0.5"></dd></div>
+          <div><dt class="text-slate-500">Sampler</dt><dd id="lb-sampler" class="text-slate-300 font-mono mt-0.5"></dd></div>
+          <div><dt class="text-slate-500">Seed</dt><dd id="lb-seed" class="text-slate-300 font-mono tabular-nums mt-0.5"></dd></div>
+          <div><dt class="text-slate-500">Steps · CFG</dt><dd id="lb-steps" class="text-slate-300 font-mono tabular-nums mt-0.5"></dd></div>
+          <div><dt class="text-slate-500">Size</dt><dd id="lb-size" class="text-slate-300 font-mono tabular-nums mt-0.5"></dd></div>
+        </dl>
+        <button id="lb-copy" class="mt-auto bg-slate-800 hover:bg-slate-700 text-sm py-2 rounded-lg font-medium transition">Copy prompt</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script id="app-js">
+(function () {
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+  /* ---------- state ---------- */
+  const PKGS = {
+    comfyui: { name: 'ComfyUI',        port: 8188, status: 'running', startedAt: Date.now() - 34 * 60000, tab: 'comfyui' },
+    forge:   { name: 'SD WebUI Forge', port: 7860, status: 'stopped', startedAt: null, tab: 'system' },
+    sdnext:  { name: 'SD.Next',        port: 7861, status: 'stopped', startedAt: null, tab: 'sdnext' },
+    fooocus: { name: 'Fooocus',        port: 7865, status: 'stopped', startedAt: null, tab: 'system' }
+  };
+  const gpu = { util: 63, vram: 14.6, temp: 66, hist: [] };
+  for (let i = 0; i < 48; i++) gpu.hist.push(58 + Math.sin(i / 4.2) * 16 + Math.random() * 7);
+  let downloads = [{ name: 'DreamShaper XL Turbo', sizeMB: 6870, doneMB: 4270, speed: 34 }];
+  const logs = { comfyui: [], sdnext: [], system: [] };
+  let consoleTab = 'comfyui';
+  let currentView = 'dashboard';
+  let lbPrompt = '';
+
+  /* ---------- class maps (literal, so Tailwind can scan them) ---------- */
+  const BADGE = {
+    running:  'px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/20',
+    stopped:  'px-2 py-0.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-full border border-slate-700',
+    updating: 'px-2 py-0.5 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/20 animate-pulse'
+  };
+  const BADGE_TEXT = { running: 'Running', stopped: 'Stopped', updating: 'Updating…' };
+  const DOT = {
+    running:  'w-2 h-2 rounded-full bg-emerald-400 shrink-0',
+    stopped:  'w-2 h-2 rounded-full bg-slate-600 shrink-0',
+    updating: 'w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0'
+  };
+  const BTN_LAUNCH = 'bg-indigo-600 hover:bg-indigo-500 font-medium transition';
+  const BTN_STOP   = 'bg-slate-800 hover:bg-slate-700 font-medium transition';
+  const OPEN_ON  = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-sm py-2 rounded-lg font-medium transition';
+  const OPEN_OFF = 'flex-1 bg-slate-800 text-sm py-2 rounded-lg font-medium transition opacity-40 cursor-not-allowed';
+  const NAV_ON  = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left bg-indigo-600/20 text-indigo-400';
+  const NAV_OFF = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition';
+  const CAT_ON  = 'cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left bg-indigo-600/20 text-indigo-400 font-medium';
+  const CAT_OFF = 'cat-btn w-full flex justify-between px-3 py-1.5 rounded-lg text-left text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition';
+  const CHIP_ON  = 'base-btn text-xs px-2.5 py-1 rounded-full border transition border-indigo-500/50 bg-indigo-500/10 text-indigo-300 font-medium';
+  const CHIP_OFF = 'base-btn text-xs px-2.5 py-1 rounded-full border transition border-slate-800 text-slate-400 hover:border-slate-600';
+  const TAB_ON  = 'tab-btn text-xs px-2.5 py-1 rounded-md font-medium transition bg-slate-800 text-slate-100';
+  const TAB_OFF = 'tab-btn text-xs px-2.5 py-1 rounded-md font-medium transition text-slate-500 hover:text-slate-300';
+  const LVL = { INFO: 'text-slate-500', OK: 'text-emerald-400', WARN: 'text-amber-400', ERR: 'text-rose-400' };
+
+  /* ---------- toasts ---------- */
+  function toast(msg, kind) {
+    const borders = { info: 'border-indigo-500/40', success: 'border-emerald-500/40', warn: 'border-amber-500/40' };
+    const node = document.createElement('div');
+    node.className = 'toast bg-slate-950 border ' + (borders[kind] || borders.info) +
+      ' rounded-xl px-4 py-3 text-sm text-slate-200 shadow-lg shadow-slate-950/50';
+    node.textContent = msg;
+    $('#toast-stack').appendChild(node);
+    requestAnimationFrame(() => node.classList.add('show'));
+    setTimeout(() => { node.classList.remove('show'); setTimeout(() => node.remove(), 300); }, 3600);
+  }
+
+  /* ---------- logs ---------- */
+  function ts() { return new Date().toTimeString().slice(0, 8); }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function pushLog(tab, lvl, msg) {
+    logs[tab].push({ t: ts(), lvl: lvl, msg: msg });
+    if (logs[tab].length > 300) logs[tab].shift();
+    renderConsole();
+  }
+  const LOG_POOL = {
+    comfyui: [
+      ['INFO', 'got prompt — queue size 1'],
+      ['INFO', 'Requested to load SDXLClipModel'],
+      ['INFO', 'model weights loaded: juggernautXL_v9.safetensors'],
+      ['WARN', "clip missing: ['clip_l.logit_scale']"],
+      ['INFO', 'Using pytorch attention — VRAM state: NORMAL'],
+      ['OK',   'Prompt executed in 8.42 seconds'],
+      ['OK',   'saved output: ComfyUI_00341_.png']
+    ],
+    sdnext: [
+      ['INFO', 'diffusers pipeline ready: StableDiffusionXLPipeline'],
+      ['INFO', 'job queued — position 1'],
+      ['OK',   'image generated in 11.03 seconds']
+    ],
+    system: [
+      ['INFO', 'watchdog: all shared folders healthy'],
+      ['INFO', 'symlink scan complete — 12 models linked'],
+      ['INFO', 'civitai: metadata refreshed for 3 models'],
+      ['OK',   'snapshot written to /srv/backups/sm-hub']
+    ]
+  };
+  function renderConsole() {
+    const drawer = $('#console');
+    if (drawer.classList.contains('hidden')) return;
+    const body = $('#console-body');
+    body.innerHTML = logs[consoleTab].slice(-160).map(l =>
+      '<div><span class="text-slate-600">[' + l.t + ']</span> <span class="' + LVL[l.lvl] + '">' +
+      l.lvl.padEnd(4, ' ') + '</span> <span class="text-slate-300">' + esc(l.msg) + '</span></div>'
+    ).join('');
+    if ($('#autoscroll').checked) body.scrollTop = body.scrollHeight;
+  }
+  function setConsoleTab(tab) {
+    consoleTab = tab;
+    $$('.tab-btn').forEach(b => {
+      const on = b.dataset.tab === tab;
+      b.className = on ? TAB_ON : TAB_OFF;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    renderConsole();
+  }
+  function openConsole(tab) {
+    $('#console').classList.remove('hidden');
+    $('#console').classList.add('flex');
+    $('#console-toggle').setAttribute('aria-expanded', 'true');
+    setConsoleTab(tab || consoleTab);
+  }
+  function closeConsole() {
+    $('#console').classList.add('hidden');
+    $('#console').classList.remove('flex');
+    $('#console-toggle').setAttribute('aria-expanded', 'false');
+  }
+
+  /* ---------- packages ---------- */
+  function anyRunning() { return Object.values(PKGS).some(p => p.status === 'running'); }
+  function renderPkg(id) {
+    const p = PKGS[id];
+    const badge = $('#badge-' + id);
+    if (badge) { badge.className = BADGE[p.status]; badge.textContent = BADGE_TEXT[p.status]; }
+    const dot = $('#dash-dot-' + id);
+    if (dot) dot.className = DOT[p.status];
+    const toggle = $('#btn-toggle-' + id);
+    if (toggle) {
+      toggle.textContent = p.status === 'running' ? 'Stop' : 'Launch';
+      toggle.className = 'flex-1 text-sm py-2 rounded-lg ' + (p.status === 'running' ? BTN_STOP : BTN_LAUNCH);
+      toggle.disabled = p.status === 'updating';
+    }
+    const dashBtn = $('#dash-btn-' + id);
+    if (dashBtn) {
+      dashBtn.textContent = p.status === 'running' ? 'Stop' : 'Launch';
+      dashBtn.className = 'text-xs px-3 py-1.5 rounded-lg ' + (p.status === 'running' ? BTN_STOP : BTN_LAUNCH);
+      dashBtn.disabled = p.status === 'updating';
+    }
+    const open = $('#btn-open-' + id);
+    if (open) {
+      open.className = p.status === 'running' ? OPEN_ON : OPEN_OFF;
+      open.disabled = p.status !== 'running';
+    }
+    renderProcStrip();
+  }
+  function renderProcStrip() {
+    const running = Object.entries(PKGS).filter(([, p]) => p.status === 'running');
+    const n = running.length;
+    $('#nav-run-count').textContent = n + ' ●';
+    $('#pkg-summary').innerHTML = '<b class="text-slate-200">4</b> installed · <b class="text-slate-200">' + n + '</b> running';
+    const strip = $('#sb-procs');
+    strip.innerHTML = n === 0
+      ? '<span class="text-slate-600">no processes running</span>'
+      : running.map(([id, p]) =>
+          '<button data-console-tab="' + p.tab + '" class="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-slate-800 text-slate-300 font-medium transition truncate">' +
+          '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>' + p.name +
+          ' <span class="font-mono text-slate-500">:' + p.port + '</span></button>'
+        ).join('');
+  }
+  function renderUptimes() {
+    Object.entries(PKGS).forEach(([id, p]) => {
+      const el = $('#dash-up-' + id);
+      if (!el) return;
+      if (p.status === 'running' && p.startedAt) {
+        const m = Math.floor((Date.now() - p.startedAt) / 60000);
+        el.textContent = m >= 60 ? 'up ' + Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : 'up ' + m + 'm';
+      } else el.textContent = p.status === 'updating' ? 'updating…' : '—';
+    });
+  }
+  function launchPkg(id) {
+    const p = PKGS[id];
+    p.status = 'running';
+    p.startedAt = Date.now();
+    pushLog(p.tab, 'INFO', p.name + ' — spawn: python launch.py --listen --port ' + p.port);
+    pushLog(p.tab, 'OK', p.name + ' ready on http://localhost:' + p.port);
+    toast(p.name + ' launched on :' + p.port, 'success');
+    renderPkg(id); renderUptimes();
+  }
+  function stopPkg(id) {
+    const p = PKGS[id];
+    p.status = 'stopped';
+    p.startedAt = null;
+    pushLog(p.tab, 'INFO', p.name + ' — process exited (code 0)');
+    toast(p.name + ' stopped', 'info');
+    renderPkg(id); renderUptimes();
+  }
+  function updateSdnext() {
+    const p = PKGS.sdnext;
+    if (p.status === 'running') { toast('Stop SD.Next before updating', 'warn'); return; }
+    if (p.status === 'updating') return;
+    p.status = 'updating';
+    renderPkg('sdnext'); renderUptimes();
+    $('#up-row-sdnext').classList.remove('hidden');
+    $('#btn-update-sdnext').disabled = true;
+    pushLog('sdnext', 'INFO', 'git fetch origin — 79a2f8c → 8b31d02');
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct += 9 + Math.random() * 8;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(iv);
+        setTimeout(() => {
+          p.status = 'stopped';
+          $('#up-row-sdnext').classList.add('hidden');
+          $('#btn-update-sdnext').disabled = false;
+          pushLog('sdnext', 'OK', 'update complete — now at 8b31d02');
+          toast('SD.Next updated to 8b31d02', 'success');
+          renderPkg('sdnext'); renderUptimes();
+        }, 400);
+      }
+      $('#up-bar-sdnext').style.width = pct + '%';
+      $('#up-pct-sdnext').textContent = Math.round(pct) + '%';
+    }, 550);
+  }
+
+  /* ---------- downloads ---------- */
+  function fmtGB(mb) { return (mb / 1024).toFixed(1); }
+  function renderDownloads() {
+    const list = $('#dl-list');
+    const sb = $('#sb-dl');
+    if (downloads.length === 0) {
+      list.innerHTML = '';
+      $('#dl-empty').classList.remove('hidden');
+      sb.classList.add('hidden'); sb.classList.remove('flex');
+      return;
+    }
+    $('#dl-empty').classList.add('hidden');
+    list.innerHTML = downloads.map(d => {
+      const pct = Math.min(100, d.doneMB / d.sizeMB * 100);
+      return '<div>' +
+        '<div class="flex justify-between gap-2 text-xs mb-1.5"><span class="truncate text-slate-300 font-medium">' + esc(d.name) + '</span>' +
+        '<span class="font-mono tabular-nums text-slate-500 shrink-0">' + fmtGB(d.doneMB) + ' / ' + fmtGB(d.sizeMB) + ' GB</span></div>' +
+        '<div class="h-1.5 rounded-full bg-slate-800"><div class="h-full rounded-full bg-indigo-500" style="width:' + pct + '%"></div></div>' +
+        '<div class="mt-1 text-[11px] font-mono tabular-nums text-slate-500">' + (d.speed ? d.speed.toFixed(0) + ' MB/s' : 'queued') + '</div></div>';
+    }).join('');
+    const d = downloads[0];
+    sb.classList.remove('hidden'); sb.classList.add('flex');
+    $('#sb-dl-name').textContent = d.name;
+    const pct = Math.min(100, d.doneMB / d.sizeMB * 100);
+    $('#sb-dl-bar').style.width = pct + '%';
+    $('#sb-dl-pct').textContent = Math.round(pct) + '%';
+  }
+  function tickDownloads() {
+    if (downloads.length === 0) return;
+    const d = downloads[0];
+    d.speed = 26 + Math.random() * 20;
+    d.doneMB += d.speed * 1.5;
+    if (d.doneMB >= d.sizeMB) {
+      downloads.shift();
+      pushLog('system', 'OK', 'download complete: ' + d.name + ' → Models/Checkpoints');
+      toast('Installed "' + d.name + '" to the model library', 'success');
+    }
+    renderDownloads();
+  }
+
+  /* ---------- system stats ---------- */
+  function setMeter(el, pct, warnAt, dangerAt) {
+    el.style.width = Math.min(100, pct) + '%';
+    el.className = 'h-full rounded-full ' +
+      (pct >= dangerAt ? 'bg-rose-400' : pct >= warnAt ? 'bg-amber-400' : 'bg-indigo-500');
+  }
+  function drawSpark() {
+    const c = $('#gpu-spark');
+    if (!c || c.clientWidth === 0) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.width = c.clientWidth * dpr;
+    const h = c.height = c.clientHeight * dpr;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(148,163,184,.12)';
+    ctx.lineWidth = 1;
+    [0.25, 0.5, 0.75].forEach(f => {
+      ctx.beginPath(); ctx.moveTo(0, h * f); ctx.lineTo(w, h * f); ctx.stroke();
+    });
+    const pts = gpu.hist.map((v, i) => [i / (gpu.hist.length - 1) * w, h - (v / 100) * (h - 4 * dpr) - 2 * dpr]);
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(99,102,241,.30)');
+    grad.addColorStop(1, 'rgba(99,102,241,0)');
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.strokeStyle = '#818CF8'; ctx.lineWidth = 1.5 * dpr; ctx.stroke();
+    const [ex, ey] = pts[pts.length - 1];
+    ctx.beginPath(); ctx.arc(ex, ey, 2.5 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = '#C7D2FE'; ctx.fill();
+    ctx.strokeStyle = '#020617'; ctx.lineWidth = 1.5 * dpr; ctx.stroke();
+  }
+  function tickStats() {
+    const busy = anyRunning();
+    const utilTarget = busy ? 55 + Math.random() * 34 : 3 + Math.random() * 4;
+    const vramTarget = busy ? 15.8 : 3.1;
+    gpu.util += (utilTarget - gpu.util) * 0.35;
+    gpu.vram += (vramTarget - gpu.vram) * 0.18;
+    gpu.temp += ((38 + gpu.util * 0.48) - gpu.temp) * 0.25;
+    gpu.hist.push(gpu.util);
+    if (gpu.hist.length > 48) gpu.hist.shift();
+
+    const u = Math.round(gpu.util), v = gpu.vram.toFixed(1), t = Math.round(gpu.temp);
+    $('#stat-util').textContent = u;
+    $('#stat-vram').textContent = v;
+    $('#stat-temp').textContent = t;
+    setMeter($('#stat-vram-bar'), gpu.vram / 24 * 100, 85, 95);
+    const tempPct = t / 95 * 100;
+    const tempBar = $('#stat-temp-bar');
+    tempBar.style.width = Math.min(100, tempPct) + '%';
+    tempBar.className = 'h-full rounded-full ' + (t >= 85 ? 'bg-rose-400' : t >= 75 ? 'bg-amber-400' : 'bg-emerald-400');
+    $('#side-gpu-t').textContent = u + '%';
+    $('#side-gpu').style.width = u + '%';
+    $('#side-vram-t').textContent = v + ' / 24 GB';
+    $('#side-vram').style.width = (gpu.vram / 24 * 100) + '%';
+    const sideTemp = $('#side-temp');
+    sideTemp.textContent = t + '°C';
+    sideTemp.className = 'text-[11px] font-mono tabular-nums ' + (t >= 85 ? 'text-rose-400' : t >= 75 ? 'text-amber-400' : 'text-emerald-400');
+    $('#hdr-gpu').textContent = 'GPU ' + u + '%';
+    $('#hdr-vram').textContent = 'VRAM ' + v + '/24';
+    drawSpark();
+  }
+  function tickLogs() {
+    Object.values(PKGS).forEach(p => {
+      if (p.status === 'running' && Math.random() < 0.55) {
+        const pool = LOG_POOL[p.tab === 'system' ? 'system' : p.tab];
+        const line = pool[Math.floor(Math.random() * pool.length)];
+        pushLog(p.tab, line[0], (p.tab === 'system' ? '[' + p.name + '] ' : '') + line[1]);
+      }
+    });
+    if (Math.random() < 0.18) {
+      const line = LOG_POOL.system[Math.floor(Math.random() * LOG_POOL.system.length)];
+      pushLog('system', line[0], line[1]);
+    }
+  }
+
+  /* ---------- navigation ---------- */
+  const TITLES = { dashboard: 'Dashboard', packages: 'Packages', models: 'Model Manager', browser: 'CivitAI Browser', outputs: 'Outputs', settings: 'Settings' };
+  function nav(view) {
+    currentView = view;
+    $$('[data-view]').forEach(s => s.classList.toggle('hidden', s.dataset.view !== view));
+    $$('.nav-btn').forEach(b => { b.className = b.dataset.nav === view ? NAV_ON : NAV_OFF; });
+    $('#page-title').textContent = TITLES[view];
+    if (view === 'dashboard') drawSpark();
+  }
+
+  /* ---------- model filters ---------- */
+  const filter = { cat: 'all', base: 'all', q: '' };
+  function applyModelFilter() {
+    let visible = 0;
+    $$('.model-card').forEach(card => {
+      const okCat = filter.cat === 'all' || card.dataset.cat === filter.cat;
+      const okBase = filter.base === 'all' || card.dataset.base === filter.base || card.dataset.base === 'any';
+      const okQ = !filter.q || card.dataset.name.includes(filter.q);
+      const show = okCat && okBase && okQ;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    $('#models-empty').classList.toggle('hidden', visible > 0);
+    $$('.cat-btn').forEach(b => { b.className = b.dataset.cat === filter.cat ? CAT_ON : CAT_OFF; });
+    $$('.base-btn').forEach(b => { b.className = b.dataset.base === filter.base ? CHIP_ON : CHIP_OFF; });
+  }
+  function sortModels(mode) {
+    const grid = $('#models-grid');
+    const cards = $$('.model-card', grid);
+    cards.sort((a, b) => mode === 'size'
+      ? Number(b.dataset.size) - Number(a.dataset.size)
+      : a.dataset.name.localeCompare(b.dataset.name));
+    cards.forEach(c => grid.appendChild(c));
+  }
+
+  /* ---------- lightbox ---------- */
+  function openLightbox(btn) {
+    const lb = $('#lightbox');
+    lbPrompt = btn.dataset.prompt;
+    $('#lb-file').textContent = btn.dataset.file;
+    $('#lb-prompt').textContent = btn.dataset.prompt;
+    $('#lb-model').textContent = btn.dataset.model;
+    $('#lb-sampler').textContent = btn.dataset.sampler;
+    $('#lb-seed').textContent = btn.dataset.seed;
+    $('#lb-steps').textContent = btn.dataset.steps + ' · ' + btn.dataset.cfg;
+    $('#lb-size').textContent = btn.dataset.size;
+    const g = Array.from(btn.classList).find(c => /^g\d$/.test(c)) || 'g1';
+    $('#lb-image').className = 'thumb ' + g + ' sm:w-1/2 aspect-square shrink-0';
+    lb.classList.remove('hidden');
+    lb.classList.add('flex');
+    $('#lb-close').focus();
+  }
+  function closeLightbox() {
+    $('#lightbox').classList.add('hidden');
+    $('#lightbox').classList.remove('flex');
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', e => {
+    const navBtn = e.target.closest('[data-nav]');
+    if (navBtn) { nav(navBtn.dataset.nav); return; }
+    const tabBtn = e.target.closest('[data-console-tab]');
+    if (tabBtn) { openConsole(tabBtn.dataset.consoleTab); return; }
+    const out = e.target.closest('.output-thumb');
+    if (out) { openLightbox(out); return; }
+    const act = e.target.closest('[data-action]');
+    if (!act) return;
+    const id = act.dataset.pkg;
+    switch (act.dataset.action) {
+      case 'toggle-pkg':
+        PKGS[id].status === 'running' ? stopPkg(id) : launchPkg(id);
+        break;
+      case 'open-webui':
+        toast('Opening ' + PKGS[id].name + ' → http://localhost:' + PKGS[id].port + ' (mocked)', 'info');
+        break;
+      case 'update-pkg':
+        updateSdnext();
+        break;
+      case 'add-package':
+        toast('Package catalog is mocked in this build', 'info');
+        break;
+      case 'import-model': {
+        downloads.push({ name: act.dataset.name, sizeMB: Number(act.dataset.size), doneMB: 0, speed: 0 });
+        act.disabled = true;
+        act.className = 'mt-auto w-full bg-slate-800 text-slate-500 text-sm py-2 rounded-lg font-medium cursor-not-allowed';
+        act.textContent = 'Queued ✓';
+        pushLog('system', 'INFO', 'download queued: ' + act.dataset.name);
+        toast('Queued "' + act.dataset.name + '" for download', 'info');
+        renderDownloads();
+        break;
+      }
+      case 'save-settings':
+        toast('Settings saved', 'success');
+        break;
+    }
+  });
+
+  $$('.cat-btn').forEach(b => b.addEventListener('click', () => { filter.cat = b.dataset.cat; applyModelFilter(); }));
+  $$('.base-btn').forEach(b => b.addEventListener('click', () => { filter.base = b.dataset.base; applyModelFilter(); }));
+  $('#models-search').addEventListener('input', e => { filter.q = e.target.value.trim().toLowerCase(); applyModelFilter(); });
+  $('#models-sort').addEventListener('change', e => sortModels(e.target.value));
+  $('#global-search').addEventListener('input', e => {
+    if (currentView !== 'models') nav('models');
+    $('#models-search').value = e.target.value;
+    filter.q = e.target.value.trim().toLowerCase();
+    applyModelFilter();
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#global-search').focus(); }
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  $('#console-toggle').addEventListener('click', () => {
+    $('#console').classList.contains('hidden') ? openConsole() : closeConsole();
+  });
+  $('#console-close').addEventListener('click', closeConsole);
+  $('#console-clear').addEventListener('click', () => { logs[consoleTab] = []; renderConsole(); });
+  $$('.tab-btn').forEach(b => b.addEventListener('click', () => setConsoleTab(b.dataset.tab)));
+
+  $('#lb-close').addEventListener('click', closeLightbox);
+  $('#lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) closeLightbox(); });
+  $('#lb-copy').addEventListener('click', () => {
+    if (navigator.clipboard) navigator.clipboard.writeText(lbPrompt);
+    toast('Prompt copied to clipboard', 'success');
+  });
+
+  $('#side-launch').addEventListener('click', () => {
+    PKGS.comfyui.status === 'running'
+      ? toast('ComfyUI is already running on :8188', 'info')
+      : launchPkg('comfyui');
+  });
+  $('#sfw-toggle').addEventListener('click', e => {
+    const b = e.currentTarget;
+    const on = b.getAttribute('aria-pressed') === 'true';
+    b.setAttribute('aria-pressed', on ? 'false' : 'true');
+    b.className = on
+      ? 'text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800 text-slate-400 font-medium transition'
+      : 'text-xs px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-medium transition';
+    b.textContent = on ? 'SFW only · off' : 'SFW only · on';
+  });
+  $('#set-theme').addEventListener('change', e => {
+    if (e.target.selectedIndex === 1) toast('Light theme is on the roadmap — this build is dark-only', 'info');
+  });
+  window.addEventListener('resize', drawSpark);
+
+  /* ---------- boot ---------- */
+  pushLog('system', 'INFO', 'Stability Matrix web hub started — mock data, no server attached');
+  pushLog('comfyui', 'OK', 'ComfyUI ready on http://localhost:8188');
+  Object.keys(PKGS).forEach(renderPkg);
+  renderUptimes();
+  renderDownloads();
+  applyModelFilter();
+  nav('dashboard');
+  tickStats();
+  setInterval(tickStats, 1500);
+  setInterval(tickLogs, 1600);
+  setInterval(tickDownloads, 1000);
+  setInterval(renderUptimes, 30000);
+})();
+</script>
+</body>
+</html>
