@@ -132,44 +132,6 @@
 
         <!-- ============ DASHBOARD ============ -->
         <section data-view="dashboard" class="p-6 space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">GPU utilization</div>
-              <div class="flex items-baseline gap-1 mb-2">
-                <span id="stat-util" class="text-2xl font-mono tabular-nums font-semibold">63</span>
-                <span class="text-slate-500 text-xs font-mono">%</span>
-              </div>
-              <canvas id="gpu-spark" class="w-full h-8 block" aria-label="GPU utilization, last 2 minutes" role="img"></canvas>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">VRAM</div>
-              <div class="flex items-baseline gap-1 mb-3">
-                <span id="stat-vram" class="text-2xl font-mono tabular-nums font-semibold">14.6</span>
-                <span class="text-slate-500 text-xs font-mono">/ 24 GB</span>
-              </div>
-              <div class="h-1.5 rounded-full bg-slate-800"><div id="stat-vram-bar" class="h-full rounded-full bg-indigo-500" style="width:61%"></div></div>
-              <div class="mt-2 text-[11px] text-slate-500">RTX 4090 · CUDA 12.4</div>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">GPU temperature</div>
-              <div class="flex items-baseline gap-1 mb-3">
-                <span id="stat-temp" class="text-2xl font-mono tabular-nums font-semibold">66</span>
-                <span class="text-slate-500 text-xs font-mono">°C</span>
-              </div>
-              <div class="h-1.5 rounded-full bg-slate-800"><div id="stat-temp-bar" class="h-full rounded-full bg-emerald-400" style="width:55%"></div></div>
-              <div class="mt-2 text-[11px] text-slate-500">Fan 41% · 285 W</div>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-              <div class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mb-1">Data directory</div>
-              <div class="flex items-baseline gap-1 mb-3">
-                <span class="text-2xl font-mono tabular-nums font-semibold">386</span>
-                <span class="text-slate-500 text-xs font-mono">GB free</span>
-              </div>
-              <div class="h-1.5 rounded-full bg-slate-800"><div class="h-full rounded-full bg-indigo-500" style="width:62%"></div></div>
-              <div class="mt-2 text-[11px] text-slate-500 font-mono truncate">/srv/stability-matrix/data</div>
-            </div>
-          </div>
-
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <div class="xl:col-span-2 bg-slate-950 border border-slate-800 rounded-xl">
               <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-800/60">
@@ -1128,14 +1090,6 @@
     if (gpu.hist.length > 48) gpu.hist.shift();
 
     const u = Math.round(gpu.util), v = gpu.vram.toFixed(1), t = Math.round(gpu.temp);
-    $('#stat-util').textContent = u;
-    $('#stat-vram').textContent = v;
-    $('#stat-temp').textContent = t;
-    setMeter($('#stat-vram-bar'), gpu.vram / 24 * 100, 85, 95);
-    const tempPct = t / 95 * 100;
-    const tempBar = $('#stat-temp-bar');
-    tempBar.style.width = Math.min(100, tempPct) + '%';
-    tempBar.className = 'h-full rounded-full ' + (t >= 85 ? 'bg-rose-400' : t >= 75 ? 'bg-amber-400' : 'bg-emerald-400');
     $('#side-gpu-t').textContent = u + '%';
     $('#side-gpu').style.width = u + '%';
     $('#side-vram-t').textContent = v + ' / 24 GB';
