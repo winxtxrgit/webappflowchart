@@ -1,9 +1,9 @@
 # Web App Flowchart — โปรเจกต์เว็บสร้างภาพด้วย AI
 
-**ทีม 4 คน · คอมพิวเตอร์ 4 เครื่อง · วิชา 310-3311 Image Processing (CDTI, CPE)**
+**ทีม 4 คน · คอมพิวเตอร์ 4 เครื่อง**
 
 เอกสารวางแผนงานสำหรับโปรเจกต์เว็บแอปพลิเคชันสร้างภาพด้วย AI แบบกระจายบนหลายเครื่อง (Distributed System)
-ทุกอย่างในนี้อ้างอิงจากภาพต้นฉบับ 3 ภาพใน [`Work/`](Work/) — `1.png` (ระบบ) · `2.png` (ตำแหน่งงาน) · `3.png` (เครื่องคอมพิวเตอร์)
+ทุกอย่างในนี้อ้างอิงจากภาพต้นฉบับ 3 ภาพ — [`1.png`](Work/1.png) ระบบ · [`2.png`](Work/2.png) ตำแหน่งงาน · [`3.png`](Work/3.png) เครื่องคอมพิวเตอร์
 
 ---
 
@@ -11,9 +11,9 @@
 
 | ไฟล์ | ภาษา | อ่านเมื่อไหร่ |
 |---|---|---|
-| **[`Work/WORK_ORDER_FLOWCHART.md`](Work/WORK_ORDER_FLOWCHART.md)** | 🇹🇭 ไทย | **อยากรู้ว่าใครทำอะไรก่อนหลัง** — แผนผังลำดับงานทั้งโปรเจกต์ |
-| **[`Work/TEAM_ROLES_TH.md`](Work/TEAM_ROLES_TH.md)** | 🇹🇭 ไทย | **อยากรู้ว่าตำแหน่งของฉันต้องทำอะไรบ้าง** — รายการงานของแต่ละคน + สิ่งที่ห้ามทำ |
-| [`Work/positions_preview.html`](Work/positions_preview.html) | 🇹🇭 ไทย | เปิดในเบราว์เซอร์ ดูแบบมีรูป |
+| **[`WORK_ORDER_FLOWCHART.md`](Work/WORK_ORDER_FLOWCHART.md)** | 🇹🇭 | **อยากรู้ว่าใครทำอะไรก่อนหลัง** — แผนผังลำดับงานทั้งโปรเจกต์ |
+| **[`TEAM_ROLES_TH.md`](Work/TEAM_ROLES_TH.md)** | 🇹🇭 | **อยากรู้ว่าตำแหน่งของฉันต้องทำอะไร** — รายการงานแต่ละคน + สิ่งที่ห้ามทำ |
+| [`positions_preview.html`](Work/positions_preview.html) | 🇹🇭 | เปิดในเบราว์เซอร์ ดูแบบมีรูป |
 
 ---
 
@@ -105,37 +105,43 @@ flowchart LR
 
 ---
 
-## โครงสร้างไฟล์ทั้งหมด
+## ไฟล์ทั้งหมด
 
 ```
 .
-├── Work/                          ← เอกสารวางแผนโปรเจกต์
-│   ├── 1.png  2.png  3.png            ภาพต้นฉบับ (source of truth)
-│   ├── WORK_ORDER_FLOWCHART.md    🇹🇭  ลำดับการทำงาน — เริ่มอ่านที่นี่
-│   ├── TEAM_ROLES_TH.md           🇹🇭  แต่ละตำแหน่งต้องทำอะไร
-│   ├── positions_preview.html     🇹🇭  เวอร์ชันดูในเบราว์เซอร์
-│   ├── PROJECT_WORKFLOW.md        🇬🇧  แผนงานละเอียด (เวอร์ชัน 5 คน)
-│   ├── COMPUTER_ROLE_ALLOCATION.md 🇬🇧 เครื่องไหนทำหน้าที่อะไร + เหตุผล
-│   ├── FLOWCHART.md               🇬🇧  แผนผัง 16 แบบ
-│   ├── MASTER_AGENT.md            🇬🇧  ตัวประสานงาน AI Agent
-│   └── AGENT_COLLABORATION_RULES.md 🇬🇧 กฎการทำงานร่วมกัน · Git workflow
+├── README.md                            ← อ่านไฟล์นี้ก่อน
 │
-├── agents/                        ← AI Agent แยกตามตำแหน่ง (เวอร์ชัน 5 คน)
-│   ├── 01_UX_UI_FRONTEND_AGENT.md
-│   ├── 02_FLASK_BACKEND_AGENT.md
-│   ├── 03_AI_ENGINEER_AGENT.md
-│   ├── 04_QA_DEVOPS_AGENT.md
-│   └── 05_REVERSE_PROXY_ROUTING_AGENT.md
+├── Work/                                โปรเจกต์ Web App (ทั้งหมดอยู่ในนี้)
+│   ├── 1.png  2.png  3.png              ภาพต้นฉบับ (source of truth — ห้ามแก้/ย้าย)
+│   ├── WORK_ORDER_FLOWCHART.md      🇹🇭  ลำดับการทำงาน — เริ่มอ่านที่นี่
+│   ├── TEAM_ROLES_TH.md             🇹🇭  แต่ละตำแหน่งต้องทำอะไร
+│   ├── positions_preview.html       🇹🇭  เวอร์ชันดูในเบราว์เซอร์
+│   ├── PROJECT_WORKFLOW.md          🇬🇧  แผนงานละเอียด · dependency · milestone · risk
+│   ├── COMPUTER_ROLE_ALLOCATION.md  🇬🇧  เครื่องไหนทำหน้าที่อะไร + เหตุผล
+│   ├── FLOWCHART.md                 🇬🇧  แผนผัง 16 แบบ
+│   ├── MASTER_AGENT.md              🇬🇧  ตัวประสานงาน AI Agent
+│   ├── AGENT_COLLABORATION_RULES.md 🇬🇧  กฎการทำงานร่วมกัน · Git workflow
+│   ├── stability-matrix-ui-study.md 🇬🇧  งานศึกษา UI แดชบอร์ด Stability Matrix
+│   ├── stability-matrix-ui-mockup.html  mockup แดชบอร์ด — เปิดเล่นได้ในเบราว์เซอร์
+│   └── agents/                          AI Agent แยกตามตำแหน่ง
+│       ├── 01_UX_UI_FRONTEND_AGENT.md
+│       ├── 02_FLASK_BACKEND_AGENT.md
+│       ├── 03_AI_ENGINEER_AGENT.md
+│       ├── 04_QA_DEVOPS_AGENT.md
+│       └── 05_REVERSE_PROXY_ROUTING_AGENT.md
 │
-├── Lecture/                       ← สไลด์เรียน 4 ไฟล์ (282 สไลด์)
-├── Lecture_Knowledge_Base.md      ← สรุปสไลด์เรียนทั้งหมด
-├── learn/                         ← ภาพแผนงานทีม 11 ภาพ
-└── Learn_Knowledge_Base.md        ← สรุปภาพแผนงานทีม
+├── Study/                               เอกสารเรียน Image Processing
+│   ├── Lecture/                         สไลด์ PDF (Lecture 1–4)
+│   ├── learn/                           รูปประกอบ (1–11.jpg)
+│   ├── Lecture_Knowledge_Base.md        สรุปเนื้อหาจากสไลด์
+│   └── Learn_Knowledge_Base.md          สรุปเนื้อหาจากรูป
+│
+└── skill/                               clone ของ anthropics/skills (repo แยก · gitignore ไว้)
 ```
 
-> **หมายเหตุ:** ไฟล์ที่ทำเครื่องหมาย 🇬🇧 ยังเป็นเวอร์ชัน **5 คน** อยู่ (มีตำแหน่ง Reverse Proxy แยก) ส่วนไฟล์ 🇹🇭 อัปเดตเป็น **4 คน** แล้ว
+> **หมายเหตุ:** ไฟล์ 🇬🇧 ยังเป็นเวอร์ชัน **5 คน** (มีตำแหน่ง Reverse Proxy แยก) · ไฟล์ 🇹🇭 อัปเดตเป็น **4 คน** แล้ว
 >
-> แผนผัง Mermaid จะแสดงเป็นรูปบน GitHub, VS Code (มี extension) และ Obsidian
+> แผนผัง Mermaid แสดงเป็นรูปบน GitHub, VS Code (ต้องมี extension) และ Obsidian
 
 ---
 
