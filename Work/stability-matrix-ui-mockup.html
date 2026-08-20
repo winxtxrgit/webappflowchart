@@ -34,6 +34,15 @@
   .toast { opacity: 0; transform: translateX(12px); transition: opacity .25s ease, transform .25s ease; }
   .toast.show { opacity: 1; transform: translateX(0); }
 
+  /* Off-canvas sidebar below Tailwind's lg breakpoint (1024px). */
+  @media (max-width: 1023px) {
+    #sidebar {
+      position: fixed; top: 0; bottom: 0; left: 0; z-index: 40;
+      transform: translateX(-100%); transition: transform .25s ease;
+    }
+    #sidebar.open { transform: translateX(0); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
@@ -44,8 +53,10 @@
 
   <div class="flex-1 flex min-h-0">
 
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 z-30 bg-slate-950/70 lg:hidden" aria-hidden="true"></div>
+
     <!-- Sidebar -->
-    <aside class="w-60 shrink-0 bg-slate-950 border-r border-slate-800 flex flex-col">
+    <aside id="sidebar" class="w-60 shrink-0 bg-slate-950 border-r border-slate-800 flex flex-col">
       <div class="flex items-center gap-2.5 px-4 h-14 border-b border-slate-800/60">
         <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
           <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
@@ -108,8 +119,14 @@
     <div class="flex-1 flex flex-col min-w-0">
 
       <!-- Header -->
-      <header class="h-14 shrink-0 border-b border-slate-800 bg-slate-900/70 backdrop-blur flex items-center justify-between gap-4 px-6">
-        <h1 id="page-title" class="text-lg font-semibold truncate">Dashboard</h1>
+      <header class="h-14 shrink-0 border-b border-slate-800 bg-slate-900/70 backdrop-blur flex items-center justify-between gap-3 px-4 sm:px-6">
+        <div class="flex items-center gap-2 min-w-0">
+          <button id="sidebar-toggle" class="lg:hidden -ml-1 p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition shrink-0"
+            aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <h1 id="page-title" class="text-lg font-semibold truncate">Dashboard</h1>
+        </div>
         <div class="flex items-center gap-3">
           <div class="relative hidden md:block">
             <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -728,7 +745,7 @@
   </div>
 
   <!-- Console drawer -->
-  <div id="console" class="hidden h-56 shrink-0 bg-slate-950 border-t border-slate-800 flex-col">
+  <div id="console" class="hidden h-44 sm:h-56 shrink-0 bg-slate-950 border-t border-slate-800 flex-col">
     <div class="flex items-center gap-2 px-3 h-9 border-b border-slate-800/60 shrink-0">
       <span class="text-[11px] uppercase tracking-wider text-slate-500 font-medium mr-1">Console</span>
       <div role="tablist" aria-label="Log source" class="flex gap-1">
@@ -747,18 +764,18 @@
   </div>
 
   <!-- Status bar -->
-  <footer class="h-8 shrink-0 bg-slate-950 border-t border-slate-800 flex items-center gap-4 px-3 text-xs">
-    <div id="sb-procs" class="flex items-center gap-2 min-w-0"></div>
+  <footer class="h-8 shrink-0 bg-slate-950 border-t border-slate-800 flex items-center gap-2 sm:gap-4 px-3 text-xs">
+    <div id="sb-procs" class="flex items-center gap-2 min-w-0 overflow-hidden"></div>
     <div class="flex-1"></div>
     <div id="sb-dl" class="hidden items-center gap-2 min-w-0">
-      <span id="sb-dl-name" class="text-slate-400 truncate max-w-[180px]"></span>
+      <span id="sb-dl-name" class="hidden sm:block text-slate-400 truncate max-w-[180px]"></span>
       <span class="w-28 h-1 rounded-full bg-slate-800 overflow-hidden shrink-0"><span id="sb-dl-bar" class="block h-full rounded-full bg-indigo-500" style="width:0%"></span></span>
       <span id="sb-dl-pct" class="font-mono tabular-nums text-slate-400 w-9">0%</span>
     </div>
     <button id="console-toggle" class="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 font-medium transition" aria-expanded="false">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 7 4 4-4 4M11 15h8"/></svg>Console
     </button>
-    <span class="text-slate-600 font-mono">v0.1.0-mockup</span>
+    <span class="hidden sm:inline text-slate-500 font-mono">v0.1.0-mockup</span>
   </footer>
 
   <!-- Toasts -->
@@ -1087,6 +1104,14 @@
     }
   }
 
+  /* ---------- sidebar (off-canvas below lg) ---------- */
+  function sidebarIsOpen() { return $('#sidebar').classList.contains('open'); }
+  function setSidebar(open) {
+    $('#sidebar').classList.toggle('open', open);
+    $('#sidebar-backdrop').classList.toggle('hidden', !open);
+    $('#sidebar-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
   /* ---------- navigation ---------- */
   const TITLES = { dashboard: 'Dashboard', packages: 'Packages', models: 'Model Manager', browser: 'CivitAI Browser', outputs: 'Outputs', settings: 'Settings' };
   function nav(view) {
@@ -1094,6 +1119,7 @@
     $$('[data-view]').forEach(s => s.classList.toggle('hidden', s.dataset.view !== view));
     $$('.nav-btn').forEach(b => { b.className = b.dataset.nav === view ? NAV_ON : NAV_OFF; });
     $('#page-title').textContent = TITLES[view];
+    setSidebar(false);
   }
 
   /* ---------- model filters ---------- */
@@ -1193,9 +1219,12 @@
     filter.q = e.target.value.trim().toLowerCase();
     applyModelFilter();
   });
+  $('#sidebar-toggle').addEventListener('click', () => setSidebar(!sidebarIsOpen()));
+  $('#sidebar-backdrop').addEventListener('click', () => setSidebar(false));
+
   document.addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#global-search').focus(); }
-    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'Escape') { closeLightbox(); setSidebar(false); }
   });
 
   $('#console-toggle').addEventListener('click', () => {
@@ -1216,6 +1245,7 @@
     PKGS.comfyui.status === 'running'
       ? toast('ComfyUI is already running on :8188', 'info')
       : launchPkg('comfyui');
+    setSidebar(false);
   });
   $('#sfw-toggle').addEventListener('click', e => {
     const b = e.currentTarget;
